@@ -218,9 +218,8 @@ Edit your Factory configuration file at `~/.factory/config.json` (if the file do
       "api_key": "dummy-not-used",
       "provider": "openai"
     },
-
     {
-      "model_display_name": "Gemini 3 Pro Preview",
+      "model_display_name": "Gemini 3 Pro (SOON)",
       "model": "gemini-3-pro-preview",
       "base_url": "http://localhost:8317/v1",
       "api_key": "dummy-not-used",
@@ -283,10 +282,14 @@ Edit your Factory configuration file at `~/.factory/config.json` (if the file do
     - `*-thinking-32000` - "Ultra think" mode (~32K tokens)
 
 ### Gemini Models
-- `gemini-3-pro-preview` - Gemini 3 Pro (Preview, most advanced)
 - `gemini-2.5-pro` - Gemini 2.5 Pro (Most capable production model)
 - `gemini-2.5-flash` - Gemini 2.5 Flash (Fast and efficient)
 - `gemini-2.5-flash-lite` - Gemini 2.5 Flash Lite (Lightweight and fastest)
+
+> [!IMPORTANT]
+> **Gemini 3 Pro Preview Status**: Google's newest model (`gemini-3-pro-preview`, released Nov 18, 2025) requires the **Vertex AI API** instead of the standard Generative Language API. While the model is included in the config above, **it is not yet supported in CLIProxyAPI 6.5.1** and will return errors if used. Support is expected in an upcoming CLIProxyAPI release—likely within days.
+>
+> **Get ready**: Enable the [Vertex AI API](https://console.cloud.google.com/apis/library/aiplatform.googleapis.com) in your Google Cloud project now. Once CLIProxyAPI adds support, you'll be able to use Gemini 3 Pro Preview immediately through your existing Gemini OAuth connection.
 
 ### OpenAI Models
 - `gpt-5` - Standard GPT-5
