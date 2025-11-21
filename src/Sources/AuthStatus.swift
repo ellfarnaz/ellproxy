@@ -1,11 +1,11 @@
 import Foundation
 
 enum ServiceType: String, CaseIterable {
-    case claude = "claude"
-    case codex = "codex"
-    case gemini = "gemini"
-    case qwen = "qwen"
-    case antigravity = "antigravity"
+    case claude
+    case codex
+    case gemini
+    case qwen
+    case antigravity
     
     var displayName: String {
         switch self {
