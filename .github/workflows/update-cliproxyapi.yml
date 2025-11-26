@@ -215,9 +215,9 @@ jobs:
           
           # Add a comment mentioning you for notification
           gh pr comment "$PR_NUMBER" --body "@ranaroussi New CLIProxyAPI v${VERSION} available for review!
-
-**Changes:** Updated bundled binary to latest upstream release.
-
-**Action needed:** Please review and merge when ready.
-
-🔗 [View CLIProxyAPI Release](https://github.com/router-for-me/CLIProxyAPI/releases/tag/v${VERSION})"
+          
+          **Changes:** Updated bundled binary to latest upstream release.
+          
+          **Action needed:** Please review and merge when ready.
+          
+          🔗 [View CLIProxyAPI Release](https://github.com/router-for-me/CLIProxyAPI/releases/tag/v${VERSION})"
