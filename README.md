@@ -36,7 +36,7 @@ Built on [CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI), it handles
 - 🚀 **One-Click Server Management** - Start/stop the proxy server from your menu bar
 - 🔐 **OAuth Integration** - Authenticate with Codex, Claude Code, Gemini, Qwen, and Antigravity directly from the app
 - 📊 **Real-Time Status** - Live connection status and automatic credential detection
-- 🔄 **Auto-Updates** - Monitors auth files and updates UI in real-time
+- 🔄 **Automatic App Updates** - Starting with v1.6, VibeProxy checks for updates daily and installs them seamlessly via Sparkle
 - 🎨 **Beautiful Icons** - Custom icons with dark mode support
 - 💾 **Self-Contained** - Everything bundled inside the .app (server binary, config, static files)
 

@@ -5,37 +5,24 @@ All notable changes to VibeProxy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.7] - 2025-12-02
-
-### Changed
-- **Auto-Update Test** - Test release to verify auto-update functionality
-
-## [1.5.6] - 2025-12-02
-
-### Fixed
-- **Auto-Update Permissions** - Added entitlements to Sparkle XPC services
-  - Allows Sparkle Installer to properly update apps in /Applications
-  - Fixes "prevented from modifying apps" error on macOS
-
-## [1.5.5] - 2025-12-02
-
-### Fixed
-- **Auto-Update Build Numbers** - Fixed git history for proper build number calculation
-  - Ensures correct version comparison for updates
-
-## [1.5.4] - 2025-12-02
-
-### Fixed
-- **Auto-Update Version Comparison** - Fixed Sparkle version comparison using build numbers
-  - Ensures updates are properly detected and offered to users
-
-## [1.5.3] - 2025-12-02
+## [1.6.0] - 2025-12-02
 
 ### Added
-- **Automatic Updates** - Sparkle integration for seamless app updates (#59)
+- **Automatic App Updates** - Sparkle integration for seamless app updates (#59)
   - Check for updates daily automatically
-  - Manual "Check for Updates..." menu option
+  - Manual "Check for Updates..." menu item in the menu bar
   - Secure EdDSA signed updates
+  - Fully automated: new CLIProxyAPI versions are detected, built, signed, notarized, and published automatically
+
+## [1.5.3] - [1.5.7] - 2025-12-02
+
+### Internal
+- **Auto-Update Testing** - Internal releases for testing and refining the Sparkle auto-update integration
+  - 1.5.3: Initial Sparkle integration
+  - 1.5.4: Version comparison fixes
+  - 1.5.5: Build number calculation fixes
+  - 1.5.6: XPC entitlements for installer permissions
+  - 1.5.7: Final verification release
 
 ## [1.5.2] - 2025-12-02
 
@@ -374,11 +361,8 @@ All future changes will be documented here before release.
 
 ---
 
-[1.5.7]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.7
-[1.5.6]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.6
-[1.5.5]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.5
-[1.5.4]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.4
-[1.5.3]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.3
+[1.6.0]: https://github.com/automazeio/vibeproxy/releases/tag/v1.6.0
+[1.5.3] - [1.5.7]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.7
 [1.5.2]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.2
 [1.5.1]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.1
 [1.5.0]: https://github.com/automazeio/vibeproxy/releases/tag/v1.5.0
