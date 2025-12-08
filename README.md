@@ -22,7 +22,7 @@ Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it
 </p>
 
 > [!TIP]
-> 📣 **Latest models supported:**<br>Gemini 3 Pro Support (via Antigravity), GPT-5.1 / GPT-5.1 Codex, and Claude Sonnet 4.5 / Opus 4.5 with extended thinking! 🚀 
+> 📣 **Latest models supported:**<br>Gemini 3 Pro Support (via Antigravity), GPT-5.1 / GPT-5.1 Codex, and Claude Sonnet 4.5 / Opus 4.5 with extended thinking, and GitHub Copilot! 🚀 
 > 
 > **Setup Guides:**
 > - [Factory CLI Setup →](FACTORY_SETUP.md) - Use Factory Droids with your AI subscriptions
