@@ -282,10 +282,31 @@ struct SettingsView: View {
                         onDisconnect: { account in disconnectAccount(account) },
                         onExpandChange: { expanded in expandedRowCount += expanded ? 1 : -1 }
                     )
+                    
+                    ServiceRow(
+                        serviceType: .iflow,
+                        iconName: "icon-iflow.png",
+                        accounts: authManager.accounts(for: .iflow),
+                        isAuthenticating: authenticatingService == .iflow,
+                        helpText: "iFlow provides OAuth-based access to AI models. Login via iFlow's OAuth flow.",
+                        onConnect: { connectService(.iflow) },
+                        onDisconnect: { account in disconnectAccount(account) },
+                        onExpandChange: { expanded in expandedRowCount += expanded ? 1 : -1 }
+                    )
+                    
+                    ServiceRow(
+                        serviceType: .kiro,
+                        iconName: "icon-kiro.png",
+                        accounts: authManager.accounts(for: .kiro),
+                        isAuthenticating: authenticatingService == .kiro,
+                        helpText: "Kiro (AWS CodeWhisperer) provides AI coding assistance. Login via Google OAuth.",
+                        onConnect: { connectService(.kiro) },
+                        onDisconnect: { account in disconnectAccount(account) },
+                        onExpandChange: { expanded in expandedRowCount += expanded ? 1 : -1 }
+                    )
                 }
             }
             .formStyle(.grouped)
-            .scrollDisabled(expandedRowCount == 0)
 
             Spacer()
                 .frame(height: 6)
@@ -419,6 +440,8 @@ struct SettingsView: View {
             authenticatingService = nil
             return // handled separately with email prompt
         case .antigravity: command = .antigravityLogin
+        case .iflow: command = .iflowLogin
+        case .kiro: command = .kiroLogin
         }
         
         serverManager.runAuthCommand(command) { success, output in
@@ -458,6 +481,10 @@ struct SettingsView: View {
             return "🌐 Browser opened for Qwen authentication.\n\nPlease complete the login in your browser."
         case .antigravity:
             return "🌐 Browser opened for Antigravity authentication.\n\nPlease complete the login in your browser."
+        case .iflow:
+            return "🌐 Browser opened for iFlow authentication.\n\nPlease complete the login in your browser.\n\nThe app will automatically detect your credentials."
+        case .kiro:
+            return "🌐 Browser opened for Kiro authentication.\n\nPlease complete the Google OAuth login in your browser.\n\nThe app will automatically detect your credentials."
         }
     }
     

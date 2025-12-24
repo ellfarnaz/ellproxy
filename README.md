@@ -34,7 +34,7 @@ Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it
 
 - 🎯 **Native macOS Experience** - Clean, native SwiftUI interface that feels right at home on macOS
 - 🚀 **One-Click Server Management** - Start/stop the proxy server from your menu bar
-- 🔐 **OAuth Integration** - Authenticate with Codex, Claude Code, Gemini, Qwen, and Antigravity directly from the app
+- 🔐 **OAuth Integration** - Authenticate with Codex, Claude Code, Gemini, Qwen, Antigravity, GitHub Copilot, iFlow, and Kiro directly from the app
 - 👥 **Multi-Account Support** - Connect multiple accounts per provider with automatic round-robin distribution and failover when rate-limited
 - 📊 **Real-Time Status** - Live connection status and automatic credential detection
 - 🔄 **Automatic App Updates** - Starting with v1.6, VibeProxy checks for updates daily and installs them seamlessly via Sparkle

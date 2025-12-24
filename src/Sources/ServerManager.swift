@@ -245,6 +245,10 @@ class ServerManager: ObservableObject {
             qwenEmail = email
         case .antigravityLogin:
             authProcess.arguments = ["--config", configPath, "-antigravity-login"]
+        case .iflowLogin:
+            authProcess.arguments = ["--config", configPath, "-iflow-login"]
+        case .kiroLogin:
+            authProcess.arguments = ["--config", configPath, "-kiro-login"]
         }
         
         // Create pipes for output
@@ -458,4 +462,6 @@ enum AuthCommand: Equatable {
     case geminiLogin
     case qwenLogin(email: String)
     case antigravityLogin
+    case iflowLogin
+    case kiroLogin
 }

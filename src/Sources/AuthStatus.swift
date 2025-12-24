@@ -7,6 +7,8 @@ enum ServiceType: String, CaseIterable {
     case gemini
     case qwen
     case antigravity
+    case iflow
+    case kiro
     
     var displayName: String {
         switch self {
@@ -16,6 +18,8 @@ enum ServiceType: String, CaseIterable {
         case .gemini: return "Gemini"
         case .qwen: return "Qwen"
         case .antigravity: return "Antigravity"
+        case .iflow: return "iFlow"
+        case .kiro: return "Kiro"
         }
     }
 }
