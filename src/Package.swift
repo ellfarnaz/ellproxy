@@ -21,7 +21,8 @@ let package = Package(
             dependencies: ["Sparkle"],
             path: "Sources",
             resources: [
-                .copy("Resources")
+                .copy("Resources"),
+                .copy("config.yaml")
             ]
         )
     ]

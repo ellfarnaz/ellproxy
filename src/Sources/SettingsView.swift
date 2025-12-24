@@ -163,6 +163,7 @@ struct SettingsView: View {
     @State private var qwenEmail = ""
     @State private var pendingRefresh: DispatchWorkItem?
     @State private var expandedRowCount = 0
+    @State private var selectedTab = 0
     
     private enum Timing {
         static let serverRestartDelay: TimeInterval = 0.3
@@ -177,6 +178,72 @@ struct SettingsView: View {
     }
 
     var body: some View {
+        VStack(spacing: 0) {
+            // Tab Picker
+            Picker("", selection: $selectedTab) {
+                Text("Services").tag(0)
+                Text("Models").tag(1)
+                Text("Quick Setup").tag(2)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+
+            // Tab Content
+            if selectedTab == 0 {
+                servicesTab
+            } else if selectedTab == 1 {
+                ModelsView()
+            } else {
+                QuickSetupView()
+            }
+        }
+        .frame(width: 520, height: 720)
+        .sheet(isPresented: $showingQwenEmailPrompt) {
+            VStack(spacing: 16) {
+                Text("Qwen Account Email")
+                    .font(.headline)
+                Text("Enter your Qwen account email address")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                TextField("your.email@example.com", text: $qwenEmail)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 250)
+                HStack(spacing: 12) {
+                    Button("Cancel") {
+                        showingQwenEmailPrompt = false
+                        qwenEmail = ""
+                    }
+                    Button("Continue") {
+                        showingQwenEmailPrompt = false
+                        startQwenAuth(email: qwenEmail)
+                    }
+                    .disabled(qwenEmail.isEmpty)
+                    .keyboardShortcut(.defaultAction)
+                }
+            }
+            .padding(24)
+            .frame(width: 350)
+        }
+        .onAppear {
+            authManager.checkAuthStatus()
+            checkLaunchAtLogin()
+            startMonitoringAuthDirectory()
+        }
+        .onDisappear {
+            stopMonitoringAuthDirectory()
+        }
+        .alert("Authentication Result", isPresented: $showingAuthResult) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(authResultMessage)
+        }
+    }
+    
+    // MARK: - Services Tab
+    
+    private var servicesTab: some View {
         VStack(spacing: 0) {
             Form {
                 Section {
@@ -356,46 +423,6 @@ struct SettingsView: View {
                     }
             }
             .padding(.bottom, 12)
-        }
-        .frame(width: 480, height: 680)
-        .sheet(isPresented: $showingQwenEmailPrompt) {
-            VStack(spacing: 16) {
-                Text("Qwen Account Email")
-                    .font(.headline)
-                Text("Enter your Qwen account email address")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                TextField("your.email@example.com", text: $qwenEmail)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 250)
-                HStack(spacing: 12) {
-                    Button("Cancel") {
-                        showingQwenEmailPrompt = false
-                        qwenEmail = ""
-                    }
-                    Button("Continue") {
-                        showingQwenEmailPrompt = false
-                        startQwenAuth(email: qwenEmail)
-                    }
-                    .disabled(qwenEmail.isEmpty)
-                    .keyboardShortcut(.defaultAction)
-                }
-            }
-            .padding(24)
-            .frame(width: 350)
-        }
-        .onAppear {
-            authManager.checkAuthStatus()
-            checkLaunchAtLogin()
-            startMonitoringAuthDirectory()
-        }
-        .onDisappear {
-            stopMonitoringAuthDirectory()
-        }
-        .alert("Authentication Result", isPresented: $showingAuthResult) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(authResultMessage)
         }
     }
 

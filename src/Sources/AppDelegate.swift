@@ -3,6 +3,7 @@ import SwiftUI
 import WebKit
 import UserNotifications
 import Sparkle
+import Combine
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNotificationCenterDelegate {
     var statusItem: NSStatusItem!
@@ -13,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     private let notificationCenter = UNUserNotificationCenter.current()
     private var notificationPermissionGranted = false
     private let updaterController: SPUStandardUpdaterController
+    private var modelRouterCancellable: AnyCancellable?
     
     override init() {
         self.updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
@@ -26,6 +28,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         // Initialize managers
         serverManager = ServerManager()
         thinkingProxy = ThinkingProxy()
+        
+        // Initialize model router
+        _ = ModelRouter.shared
+        
+        // Observe model router changes
+        modelRouterCancellable = ModelRouter.shared.$activeModelId
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateModelMenu()
+            }
         
         // Warm commonly used icons to avoid first-use disk hits
         preloadIcons()
@@ -97,6 +109,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         // Server Status
         menu.addItem(NSMenuItem(title: "Server: Stopped", action: nil, keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
+        
+        // Active Model Display
+        let activeModelItem = NSMenuItem(title: "Model: None", action: nil, keyEquivalent: "")
+        activeModelItem.tag = 200
+        menu.addItem(activeModelItem)
+        
+        // Models Submenu
+        let modelsItem = NSMenuItem(title: "Switch Model", action: nil, keyEquivalent: "")
+        modelsItem.tag = 201
+        let modelsSubmenu = NSMenu()
+        modelsItem.submenu = modelsSubmenu
+        menu.addItem(modelsItem)
+        
+        menu.addItem(NSMenuItem.separator())
 
         // Main Actions
         menu.addItem(NSMenuItem(title: "Open Settings", action: #selector(openSettings), keyEquivalent: "s"))
@@ -128,9 +154,91 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
 
         statusItem.menu = menu
+        
+        // Initial model menu update
+        updateModelMenu()
     }
-
-
+    
+    /// Updates the model submenu with available models grouped by provider
+    func updateModelMenu() {
+        guard let modelsItem = menu.item(withTag: 201),
+              let submenu = modelsItem.submenu else { return }
+        
+        let router = ModelRouter.shared
+        
+        // Update active model display
+        if let activeModelItem = menu.item(withTag: 200) {
+            if router.routingEnabled, let activeModel = router.activeModel {
+                activeModelItem.title = "Model: \(activeModel.name)"
+            } else {
+                activeModelItem.title = "Model Routing: Disabled"
+            }
+        }
+        
+        // Clear existing items
+        submenu.removeAllItems()
+        
+        // Add routing toggle
+        let routingItem = NSMenuItem(title: router.routingEnabled ? "✓ Routing Enabled" : "Enable Routing", action: #selector(toggleRouting), keyEquivalent: "")
+        submenu.addItem(routingItem)
+        submenu.addItem(NSMenuItem.separator())
+        
+        // Add models by provider
+        for provider in router.providers {
+            let providerItem = NSMenuItem(title: router.providerDisplayName(provider), action: nil, keyEquivalent: "")
+            providerItem.isEnabled = false
+            
+            // Add provider icon if available
+            if let icon = IconCatalog.shared.image(named: router.providerIconName(provider), resizedTo: NSSize(width: 14, height: 14), template: true) {
+                providerItem.image = icon
+            }
+            
+            submenu.addItem(providerItem)
+            
+            // Add models for this provider
+            if let models = router.modelsByProvider[provider] {
+                for model in models {
+                    let modelItem = NSMenuItem(title: model.name, action: #selector(selectModel(_:)), keyEquivalent: "")
+                    modelItem.representedObject = model.id
+                    modelItem.indentationLevel = 1
+                    
+                    // Mark active model
+                    if model.id == router.activeModelId && router.routingEnabled {
+                        modelItem.state = .on
+                    }
+                    
+                    submenu.addItem(modelItem)
+                }
+            }
+            
+            submenu.addItem(NSMenuItem.separator())
+        }
+        
+        // Remove trailing separator if present
+        if let lastItem = submenu.items.last, lastItem.isSeparatorItem {
+            submenu.removeItem(lastItem)
+        }
+    }
+    
+    @objc func toggleRouting() {
+        ModelRouter.shared.routingEnabled.toggle()
+        updateModelMenu()
+        
+        let status = ModelRouter.shared.routingEnabled ? "enabled" : "disabled"
+        showNotification(title: "Model Routing", body: "Routing is now \(status)")
+    }
+    
+    @objc func selectModel(_ sender: NSMenuItem) {
+        guard let modelId = sender.representedObject as? String else { return }
+        
+        ModelRouter.shared.activeModelId = modelId
+        ModelRouter.shared.routingEnabled = true
+        updateModelMenu()
+        
+        if let model = ModelRouter.shared.activeModel {
+            showNotification(title: "Model Selected", body: model.name)
+        }
+    }
 
     @objc func openSettings() {
         if settingsWindow == nil {

@@ -98,17 +98,39 @@ class ServerManager: ObservableObject {
             return
         }
         
-        // Use bundled config
-        let configPath = (resourcePath as NSString).appendingPathComponent("config.yaml")
-        guard FileManager.default.fileExists(atPath: configPath) else {
-            addLog("❌ Error: config.yaml not found at \(configPath)")
+        // Use bundled config, but copy to a writable user location so the backend can persist migrations
+        let bundledConfigPath = (resourcePath as NSString).appendingPathComponent("config.yaml")
+        guard FileManager.default.fileExists(atPath: bundledConfigPath) else {
+            addLog("❌ Error: config.yaml not found at \(bundledConfigPath)")
             completion(false)
             return
         }
-        
+
+        // Ensure user config dir exists and is writable
+        let userConfigDir = (FileManager.default.homeDirectoryForCurrentUser as NSURL).appendingPathComponent(".vibeproxy")!.path
+        do {
+            try FileManager.default.createDirectory(atPath: userConfigDir, withIntermediateDirectories: true, attributes: [FileAttributeKey.posixPermissions: 0o700])
+        } catch {
+            addLog("⚠️ Could not create user config dir: \(error.localizedDescription)")
+        }
+
+        let userConfigPath = (userConfigDir as NSString).appendingPathComponent("config.yaml")
+        if !FileManager.default.fileExists(atPath: userConfigPath) {
+            do {
+                try FileManager.default.copyItem(atPath: bundledConfigPath, toPath: userConfigPath)
+                addLog("Copied bundled config to user config: \(userConfigPath)")
+                // Ensure owner/writable
+                try FileManager.default.setAttributes([FileAttributeKey.posixPermissions: 0o600], ofItemAtPath: userConfigPath)
+            } catch {
+                addLog("⚠️ Failed to copy bundled config to user config: \(error.localizedDescription)")
+            }
+        } else {
+            addLog("Using existing user config at \(userConfigPath)")
+        }
+
         process = Process()
         process?.executableURL = URL(fileURLWithPath: bundledPath)
-        process?.arguments = ["-config", configPath]
+        process?.arguments = ["-config", userConfigPath]
         
         // Setup pipes for output
         let outputPipe = Pipe()
