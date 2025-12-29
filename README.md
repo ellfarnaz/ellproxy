@@ -93,43 +93,17 @@ By leveraging this app, you can transform common AI subscriptions (Claude, Gemin
 
 ```mermaid
 graph TD
-    subgraph ClientSide [Client Layer]
-        Tools([User Tools<br>Factory / Amp / VS Code])
-        Browser([Web Dashboard<br>Settings & Monitoring])
-    end
-
-    subgraph Core [EllProxy Core Engine]
-        Gateway[API Gateway :8317]
-        Auth{Auth & Guard}
-        Router[Smart Model Router]
-        
-        subgraph Engines [Processing Engines]
-            Thinking[Thinking Proxy<br>Reasoning Injection]
-            FastTrack[Fast Track<br>Direct Relay]
-            Normalizer[Protocol Normalizer]
-        end
-        
-        Store[(Secure Storage<br>Keychain)]
-    end
-
-    subgraph Providers [Upstream Cloud]
-        Google[Google Gemini API]
-        Anthropic[Anthropic API]
-        OpenAI[OpenAI API]
-    end
-
-    Tools -->|OpenAI Protocol| Gateway
-    Browser -->|WebSocket| Gateway
+    Client([User Tools: Factory/Amp/VSCode]) -->|OpenAI/Anthropic Protocol| Gateway[EllProxy Server :8317]
+    Gateway --> Router[Smart Model Router]
+    Router -->|Thinking Request?| ThinkingEngine[Thinking Proxy Engine]
+    Router -->|Standard Request?| FastTrack[Fast Track Engine]
     
-    Gateway --> Auth
-    Auth -.->|Verify| Store
-    Auth --> Router
+    ThinkingEngine -->|Inject Thinking Params| ProviderA[Anthropic/Claude]
+    FastTrack -->|Round Robin| ProviderB[Google/Gemini]
     
-    Router -->|Complex Logic| Thinking
-    Router -->|Standard Chat| FastTrack
-    
-    Thinking & FastTrack --> Normalizer
-    Normalizer -->|Round Robin Dispatch| Google & Anthropic & OpenAI
+    ProviderA --> ResponseMapper[Response Normalizer]
+    ProviderB --> ResponseMapper
+    ResponseMapper --> Client
 ```
 
 ## 📥 Installation
