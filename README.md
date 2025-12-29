@@ -23,10 +23,7 @@
 
 Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it handles OAuth authentication, token management, and API routing automatically. One click to authenticate, zero friction to code.
 
-<p align="center">
-<br>
-  <a href="https://www.loom.com/share/5cf54acfc55049afba725ab443dd3777"><img src="ellproxy-factory-video.webp" width="600" height="380" alt="EllProxy Demo" border="0"></a>
-</p>
+
 
 > [!TIP]
 > 📣 **Latest models supported:**<br>Gemini 3 Pro Support (via Antigravity), GPT-5.1 / GPT-5.1 Codex, Claude Sonnet 4.5 / Opus 4.5 with extended thinking, and GitHub Copilot! 🚀 
