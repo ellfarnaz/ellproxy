@@ -169,22 +169,24 @@ jobs:
 
             ### What's New
 
-            See the [CHANGELOG](https://github.com/automazeio/vibeproxy/blob/main/CHANGELOG.md) for details.
+            See the [CHANGELOG](https://github.com/ellfarnaz/ellproxy/blob/main/CHANGELOG.md) for details.
+
+            ### ⚠️ Important: Unsigned Build
+
+            This release is **unsigned** (no Apple Developer account). 
+
+            **On first launch:**
+            1. Do NOT double-click the app
+            2. Right-click `EllProxy.app` → Click **"Open"**
+            3. Click **"Open"** in the security dialog
+            4. After first launch, you can double-click normally
 
             ### Verification
 
-            This release is **code signed** with Apple Developer ID and includes SHA-256 checksums for verification.
-
-            To verify the download:
+            SHA-256 checksums are included for file integrity verification:
             ```bash
             shasum -a 256 -c EllProxy.zip.sha256
             ```
-
-            ---
-
-            ✅ **Code Signed & Notarized**: This app is signed with an Apple Developer ID and notarized by Apple
-
-            **No Gatekeeper warnings** - Double-click to install and run seamlessly!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
