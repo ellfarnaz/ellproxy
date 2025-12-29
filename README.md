@@ -72,7 +72,7 @@ By leveraging this app, you can transform common AI subscriptions (Claude, Gemin
         <br><b>Smart Model Routing</b><br>Configure default and fallback models with precision.
       </td>
       <td align="center">
-        <img src="docs/screenshots/view_1.png" width="400px">
+        <img src="docs/screenshots/available-models.png" width="400px">
         <br><b>Model Management</b><br>Sync and manage discovered models effortlessly.
       </td>
     </tr>
