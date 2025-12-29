@@ -300,7 +300,6 @@ fi
 
 Planned improvements:
 - [ ] Apple Developer signing (when account available)
-- [ ] Sparkle auto-update re-enablement
 - [ ] Additional model providers
 - [ ] Enhanced QuickSetup handlers
 - [ ] Performance optimizations

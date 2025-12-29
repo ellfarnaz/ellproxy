@@ -1,5 +1,9 @@
 # EllProxy User Guide
 
+<p align="center">
+  <img src="icon.png" width="128" height="128" alt="EllProxy Icon">
+</p>
+
 Welcome to EllProxy! This guide will help you understand and use all features of the application.
 
 ---
@@ -71,7 +75,7 @@ You can connect **multiple accounts** per provider:
 
 The **Models** tab is the heart of EllProxy's intelligent routing system.
 
-![Models Tab - Routing Configuration](docs/screenshots/models-routing.png)
+![Models Tab - Routing Configuration](docs/screenshots/settings_v2.png)
 
 ### Model Routing
 
@@ -431,3 +435,10 @@ Both refer to the same model discovery process.
 **Enjoy using EllProxy!** 🚀
 
 *Last updated: 2025-12-29*
+
+---
+
+## Gallery
+
+![Additional View 1](docs/screenshots/view_1.png)
+![Additional View 2](docs/screenshots/view_2.png)

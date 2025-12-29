@@ -1,25 +1,19 @@
-# Trae-Proxy Configuration for EllProxy
-# This config forwards all api.openai.com traffic to EllProxy
+# Trae-Proxy Configuration
+# This file is used by the Python proxy server for Trae IDE
 
-domain: api.openai.com
+# Port configuration
+port: 52528
 
-# Backend API configuration - pointing to EllProxy
-# Using OpenAI vision model names so Trae IDE recognizes them as vision-capable
-apis:
+# Model configuration
+models:
   - name: "ellproxy-gpt4o"
     endpoint: "http://127.0.0.1:8317"
-    custom_model_id: "gpt-4o" # Trae recognizes this as vision model
+    custom_model_id: "gpt-4o"
     target_model_id: "gpt-4o" # EllProxy will route to default model
-    stream_mode: null
-    active: true
-  - name: "ellproxy-gemini"
-    endpoint: "http://127.0.0.1:8317"
-    custom_model_id: "gemini-2.5-flash" # For Gemini users
-    target_model_id: "gemini-2.5-flash"
     stream_mode: null
     active: true
 
 # Proxy server configuration
 server:
-  port: 443
-  debug: true
+  host: "127.0.0.1"
+  log_level: "INFO"
