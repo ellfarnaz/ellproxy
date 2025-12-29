@@ -93,16 +93,16 @@ By leveraging this app, you can transform common AI subscriptions (Claude, Gemin
 
 ```mermaid
 graph TD
-    Client([User Tools: Factory/Amp/VSCode]) -->|OpenAI/Anthropic Protocol| Gateway[EllProxy Server :8317]
+    Client([User Tools: Factory/Amp/VSCode]) -->|Standardized API Protocols| Gateway[EllProxy Server :8317]
     Gateway --> Router[Smart Model Router]
     Router -->|Thinking Request?| ThinkingEngine[Thinking Proxy Engine]
     Router -->|Standard Request?| FastTrack[Fast Track Engine]
     
-    ThinkingEngine -->|Inject Thinking Params| ProviderA[Anthropic/Claude]
-    FastTrack -->|Round Robin| ProviderB[Google/Gemini]
+    ThinkingEngine -->|Inject Thinking Params| UpstreamA[Upstream Provider A]
+    FastTrack -->|Round Robin| UpstreamB[Upstream Provider B]
     
-    ProviderA --> ResponseMapper[Response Normalizer]
-    ProviderB --> ResponseMapper
+    UpstreamA --> ResponseMapper[Response Normalizer]
+    UpstreamB --> ResponseMapper
     ResponseMapper --> Client
 ```
 
