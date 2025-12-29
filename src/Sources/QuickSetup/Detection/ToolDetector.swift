@@ -55,8 +55,8 @@ class ToolDetector: ObservableObject {
             """
         )
 
-        let whichResult = runCommand("/usr/bin/which", arguments: ["claude"])
-        if whichResult.isEmpty || whichResult.contains("not found") {
+        let isInstalled = findExecutable(named: "claude")
+        if !isInstalled {
             return tool
         }
 
@@ -99,14 +99,18 @@ class ToolDetector: ObservableObject {
             """
         )
 
-        let vscodeApps = [
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        let videoCodeApps = [
             "/Applications/Visual Studio Code.app",
             "/Applications/VSCodium.app",
-            "/Applications/Cursor.app"
+            "/Applications/Cursor.app",
+            "\(homeDir)/Applications/Visual Studio Code.app",
+            "\(homeDir)/Applications/VSCodium.app",
+            "\(homeDir)/Applications/Cursor.app"
         ]
 
         var vsCodeInstalled = false
-        for app in vscodeApps {
+        for app in videoCodeApps {
             if FileManager.default.fileExists(atPath: app) {
                 vsCodeInstalled = true
                 break
@@ -120,7 +124,6 @@ class ToolDetector: ObservableObject {
         tool.status = ToolStatus.installed
         tool.statusMessage = "Cline extension status unknown"
 
-        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
         let settingsPaths = [
             "\(homeDir)/Library/Application Support/Code/User/settings.json",
             "\(homeDir)/Library/Application Support/VSCodium/User/settings.json"
@@ -158,7 +161,9 @@ class ToolDetector: ObservableObject {
             """
         )
 
-        if FileManager.default.fileExists(atPath: "/Applications/Windsurf.app") {
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        if FileManager.default.fileExists(atPath: "/Applications/Windsurf.app") || 
+           FileManager.default.fileExists(atPath: "\(homeDir)/Applications/Windsurf.app") {
             tool.status = ToolStatus.installed
             tool.statusMessage = "Installed"
         }
@@ -189,11 +194,12 @@ class ToolDetector: ObservableObject {
             """
         )
 
-        if FileManager.default.fileExists(atPath: "/Applications/Zed.app") {
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        if FileManager.default.fileExists(atPath: "/Applications/Zed.app") ||
+           FileManager.default.fileExists(atPath: "\(homeDir)/Applications/Zed.app") {
             tool.status = ToolStatus.installed
             tool.statusMessage = "Installed"
 
-            let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
             let zedSettingsPath = "\(homeDir)/.config/zed/settings.json"
 
             if let settings = try? String(contentsOfFile: zedSettingsPath, encoding: .utf8) {
@@ -241,8 +247,9 @@ class ToolDetector: ObservableObject {
             """
         )
         
-        let whichResult = runCommand("/usr/bin/which", arguments: ["droid"])
-        if whichResult.isEmpty || whichResult.contains("not found") {
+        // Use helper with fallbacks checked automatically
+        let isInstalled = findExecutable(named: "droid")
+        if !isInstalled {
             return tool
         }
         
@@ -299,17 +306,12 @@ class ToolDetector: ObservableObject {
             """
         )
         
-        let whichResult = runCommand("/usr/bin/which", arguments: ["opencode"])
-        var isInstalled = !whichResult.isEmpty && !whichResult.contains("not found")
-        
-        // Fallback: Check standard installation path
         let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
-        let standardPath = "\(homeDir)/.opencode/bin/opencode"
-        if !isInstalled && FileManager.default.fileExists(atPath: standardPath) {
-            isInstalled = true
-        }
+        let hasOpencode = findExecutable(named: "opencode", fallbackPaths: [
+            "\(homeDir)/.opencode/bin/opencode" // Custom Opencode path
+        ])
         
-        if !isInstalled {
+        if !hasOpencode {
             return tool
         }
         
@@ -340,6 +342,36 @@ class ToolDetector: ObservableObject {
     }
 
     // MARK: - Helper
+
+    private func findExecutable(named name: String, fallbackPaths: [String] = []) -> Bool {
+        // 1. Try `which` command
+        let whichResult = runCommand("/usr/bin/which", arguments: [name])
+        if !whichResult.isEmpty && !whichResult.contains("not found") {
+            return true
+        }
+
+        // 2. Check Standard Common Paths
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        let standardPaths = [
+            "/opt/homebrew/bin/\(name)",       // Apple Silicon Homebrew
+            "/usr/local/bin/\(name)",          // Intel Homebrew
+            "\(homeDir)/.cargo/bin/\(name)",   // Rust/Cargo
+            "\(homeDir)/.local/bin/\(name)",   // Python/Local
+            "\(homeDir)/go/bin/\(name)",       // Go
+            "\(homeDir)/.npm-global/bin/\(name)" // NPM Global
+        ]
+        
+        // 3. Combine with specific fallbacks
+        let allPaths = standardPaths + fallbackPaths
+        
+        for path in allPaths {
+            if FileManager.default.fileExists(atPath: path) {
+                return true
+            }
+        }
+        
+        return false
+    }
 
     private func runCommand(_ command: String, arguments: [String]) -> String {
         let process = Process()
