@@ -1,5 +1,9 @@
 # Changelog
 
+<div align="center">
+  <img src="header.png" width="100%" alt="EllProxy Header" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+</div>
+
 > [!NOTE]
 > **Forked from [VibeProxy v1.8.23](https://github.com/automazeio/vibeproxy)**
 > 
