@@ -1,8 +1,8 @@
 # Factory Droid CLI Setup Guide
 
-<p align="center">
-  <img src="icon.png" width="128" height="128" alt="EllProxy Icon">
-</p>
+<div align="center">
+  <img src="header.png" width="100%" alt="EllProxy Header" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+</div>
 
 This guide explains how to configure Factory AI's Droid CLI to work with EllProxy. This allows you to use your existing AI subscriptions (Claude, Gemini, etc.) with Factory Droids instead of purchasing separate credits.
 

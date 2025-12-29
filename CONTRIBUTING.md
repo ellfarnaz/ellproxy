@@ -1,8 +1,8 @@
 # Contributing to EllProxy
 
-<p align="center">
-  <img src="icon.png" width="128" height="128" alt="EllProxy Icon">
-</p>
+<div align="center">
+  <img src="header.png" width="100%" alt="EllProxy Header" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+</div>
 
 Thank you for your interest in contributing to EllProxy! We welcome contributions from the community to help make this the best local AI proxy tool.
 
