@@ -3,8 +3,8 @@ name: Build and Release (Code Signed)
 on:
   push:
     tags:
-      - "v*" # Triggers on version tags like v1.0.0
-  workflow_dispatch: # Allows manual trigger
+      - 'v*'  # Triggers on version tags like v1.0.0
+  workflow_dispatch:  # Allows manual trigger
 
 permissions:
   contents: write
@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-signed:
     name: Build and Sign macOS App
-    runs-on: macos-14 # macOS Sonoma on Apple Silicon (M1)
+    runs-on: macos-14  # macOS Sonoma on Apple Silicon (M1)
 
     steps:
       - name: Checkout code
@@ -25,12 +25,12 @@ jobs:
         with:
           swift-version: "5.9"
 
-      # Import Apple Developer certificates (SKIPPED - No Apple Developer Account)
-      # - name: Import Code Signing Certificates
-      #   uses: apple-actions/import-codesign-certs@v2
-      #   with:
-      #     p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
-      #     p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
+      # Import Apple Developer certificates
+      - name: Import Code Signing Certificates
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
 
       # Install the provisioning profile (if needed for distribution)
       # Note: Not typically needed for Developer ID distribution
@@ -51,23 +51,58 @@ jobs:
           echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
           echo "Building version: ${VERSION} (build ${BUILD_NUMBER})"
 
-      - name: Build app bundle (unsigned)
+      - name: Build app bundle
         env:
+          CODESIGN_IDENTITY: ${{ secrets.APPLE_DEVELOPER_ID_APPLICATION }}
           APP_VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
           chmod +x create-app-bundle.sh
           ./create-app-bundle.sh
-          echo "✅ App built with ad-hoc signature (unsigned)"
 
-      # Verify the signing (SKIPPED - ad-hoc signature only)
-      # - name: Verify Code Signature
-      #   run: |
-      #     codesign --verify --deep --strict --verbose=2 EllProxy.app
-      #     codesign -dv --verbose=4 EllProxy.app
-      #     spctl -a -vvv -t install EllProxy.app || echo "⚠️ Gatekeeper check failed (expected without notarization)"
+      # Verify the signing
+      - name: Verify Code Signature
+        run: |
+          codesign --verify --deep --strict --verbose=2 VibeProxy.app
+          codesign -dv --verbose=4 VibeProxy.app
+          spctl -a -vvv -t install VibeProxy.app || echo "⚠️ Gatekeeper check failed (expected without notarization)"
 
-      # Notarize the app (SKIPPED - requires Apple Developer Account)
-      # Users will need to right-click > Open to bypass Gatekeeper
+      # Notarize the app for seamless installation (no Gatekeeper warnings)
+      - name: Notarize App
+        run: |
+          # Create a ZIP for notarization
+          ditto -c -k --sequesterRsrc --keepParent "VibeProxy.app" "VibeProxy-notarize.zip"
+          
+          # Submit for notarization and capture the submission ID
+          echo "Submitting app for notarization..."
+          SUBMIT_OUTPUT=$(xcrun notarytool submit "VibeProxy-notarize.zip" \
+            --apple-id "${{ secrets.APPLE_ID }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" \
+            --wait --output-format json)
+          
+          echo "$SUBMIT_OUTPUT"
+          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | jq -r '.id')
+          STATUS=$(echo "$SUBMIT_OUTPUT" | jq -r '.status')
+          
+          # If it failed, get the detailed log
+          if [ "$STATUS" != "Accepted" ]; then
+            echo "❌ Notarization failed with status: $STATUS"
+            echo "📋 Getting detailed log..."
+            xcrun notarytool log "$SUBMISSION_ID" \
+              --apple-id "${{ secrets.APPLE_ID }}" \
+              --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+              --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
+            exit 1
+          fi
+          
+          # Staple the notarization ticket
+          echo "✅ Notarization succeeded! Stapling ticket..."
+          xcrun stapler staple "VibeProxy.app"
+          xcrun stapler validate "VibeProxy.app"
+          echo "✅ App successfully notarized and stapled!"
+          
+          # Remove the notarization ZIP
+          rm "VibeProxy-notarize.zip"
 
       - name: Create DMG
         run: |
@@ -76,125 +111,158 @@ jobs:
 
           # Create DMG
           create-dmg \
-            --volname "EllProxy" \
+            --volname "VibeProxy" \
             --volicon "icon.png" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
-            --icon "EllProxy.app" 175 120 \
-            --hide-extension "EllProxy.app" \
+            --icon "VibeProxy.app" 175 120 \
+            --hide-extension "VibeProxy.app" \
             --app-drop-link 425 120 \
             --codesign "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION }}" \
-            "EllProxy.dmg" \
-            "EllProxy.app" || true
+            "VibeProxy.dmg" \
+            "VibeProxy.app" || true
 
           # Verify DMG was created and signed
-          if [ -f "EllProxy.dmg" ]; then
+          if [ -f "VibeProxy.dmg" ]; then
             echo "✅ DMG created successfully"
-            codesign -dv "EllProxy.dmg" || echo "⚠️ DMG not signed (non-fatal)"
+            codesign -dv "VibeProxy.dmg" || echo "⚠️ DMG not signed (non-fatal)"
           fi
 
       - name: Create ZIP archive
         run: |
           # ZIP is more reliable for GitHub releases
-          ditto -c -k --sequesterRsrc --keepParent "EllProxy.app" "EllProxy.zip"
+          ditto -c -k --sequesterRsrc --keepParent "VibeProxy.app" "VibeProxy.zip"
 
       - name: Calculate checksums
         run: |
-          shasum -a 256 EllProxy.zip > EllProxy.zip.sha256
-          if [ -f "EllProxy.dmg" ]; then
-            shasum -a 256 EllProxy.dmg > EllProxy.dmg.sha256
+          shasum -a 256 VibeProxy.zip > VibeProxy.zip.sha256
+          if [ -f "VibeProxy.dmg" ]; then
+            shasum -a 256 VibeProxy.dmg > VibeProxy.dmg.sha256
           fi
 
-      # Sign update for Sparkle (SKIPPED - requires Sparkle private key)
-      # Auto-update feature will not work without this signature
-      # - name: Sign update for Sparkle
-      #   id: sparkle_sign
-      #   env:
-      #     SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-      #   run: |
-      #     SIGN_UPDATE=$(find src/.build -name "sign_update" -type f | grep -v old_dsa | head -1)
-      #     if [ -z "$SIGN_UPDATE" ]; then
-      #       echo "Error: sign_update not found"
-      #       exit 1
-      #     fi
-      #     SIGNATURE=$(echo "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" EllProxy.zip --ed-key-file -)
-      #     ED_SIGNATURE=$(echo "$SIGNATURE" | grep -o 'sparkle:edSignature="[^"]*"' | sed 's/sparkle:edSignature="//;s/"$//')
-      #     LENGTH=$(stat -f%z EllProxy.zip)
-      #     echo "ed_signature=$ED_SIGNATURE" >> $GITHUB_OUTPUT
-      #     echo "length=$LENGTH" >> $GITHUB_OUTPUT
+      - name: Sign update for Sparkle
+        id: sparkle_sign
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          # Find the Sparkle sign_update tool
+          SIGN_UPDATE=$(find src/.build -name "sign_update" -type f | grep -v old_dsa | head -1)
+          
+          if [ -z "$SIGN_UPDATE" ]; then
+            echo "Error: sign_update not found"
+            find src/.build -name "sign_update" -type f
+            exit 1
+          fi
+          
+          echo "Using sign_update: $SIGN_UPDATE"
+          
+          # Sign the ZIP file
+          SIGNATURE=$(echo "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" VibeProxy.zip --ed-key-file -)
+          
+          # Extract signature and length
+          ED_SIGNATURE=$(echo "$SIGNATURE" | grep -o 'sparkle:edSignature="[^"]*"' | sed 's/sparkle:edSignature="//;s/"$//')
+          LENGTH=$(stat -f%z VibeProxy.zip)
+          
+          echo "ed_signature=$ED_SIGNATURE" >> $GITHUB_OUTPUT
+          echo "length=$LENGTH" >> $GITHUB_OUTPUT
+          echo "Sparkle signature generated"
 
-      # Update appcast.xml (SKIPPED - requires Sparkle signature)
-      # - name: Update appcast.xml
-      #   env:
-      #     VERSION: ${{ steps.get_version.outputs.VERSION }}
-      #     BUILD_NUMBER: ${{ steps.get_version.outputs.BUILD_NUMBER }}
-      #   run: |
-      #     echo "Skipping appcast.xml update (no Sparkle signature)"
+      - name: Update appcast.xml
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+          BUILD_NUMBER: ${{ steps.get_version.outputs.BUILD_NUMBER }}
+          ED_SIGNATURE: ${{ steps.sparkle_sign.outputs.ed_signature }}
+          LENGTH: ${{ steps.sparkle_sign.outputs.length }}
+        run: |
+          TODAY=$(date -u +"%a, %d %b %Y %H:%M:%S +0000")
+          
+          # Create new item entry in a temp file
+          cat > /tmp/new_item.xml << ENDOFITEM
+              <item>
+                <title>Version ${VERSION}</title>
+                <sparkle:version>${BUILD_NUMBER}</sparkle:version>
+                <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+                <pubDate>${TODAY}</pubDate>
+                <enclosure url="https://github.com/automazeio/vibeproxy/releases/download/v${VERSION}/VibeProxy.zip"
+                           type="application/octet-stream"
+                           sparkle:edSignature="${ED_SIGNATURE}"
+                           length="${LENGTH}"/>
+              </item>
+          ENDOFITEM
+          
+          # Insert new item after <language> line
+          sed -i.bak '/<language>en<\/language>/r /tmp/new_item.xml' appcast.xml
+          rm -f appcast.xml.bak /tmp/new_item.xml
+          
+          echo "Updated appcast.xml with version ${VERSION}"
+          head -30 appcast.xml
 
-      # Commit appcast.xml (SKIPPED)
-      # - name: Commit appcast.xml
-      #   run: |
-      #     echo "Skipping appcast.xml commit"
+      - name: Commit appcast.xml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          git commit -m "Update appcast.xml for v${{ steps.get_version.outputs.VERSION }}" || echo "No changes to commit"
+          git push origin HEAD:main
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            EllProxy.zip
-            EllProxy.zip.sha256
-            EllProxy.dmg
-            EllProxy.dmg.sha256
+            VibeProxy.zip
+            VibeProxy.zip.sha256
+            VibeProxy.dmg
+            VibeProxy.dmg.sha256
           draft: false
           prerelease: false
           generate_release_notes: true
           body: |
-            ## EllProxy ${{ steps.get_version.outputs.VERSION }}
+            ## VibeProxy ${{ steps.get_version.outputs.VERSION }}
 
             ### Installation
 
             **Option 1: ZIP (Recommended)**
-            1. Download `EllProxy.zip`
+            1. Download `VibeProxy.zip`
             2. Extract the file
-            3. Drag `EllProxy.app` to your `/Applications` folder
+            3. Drag `VibeProxy.app` to your `/Applications` folder
             4. Double-click to launch
 
             **Option 2: DMG**
-            1. Download `EllProxy.dmg`
+            1. Download `VibeProxy.dmg`
             2. Double-click to mount
-            3. Drag `EllProxy.app` to the Applications folder
+            3. Drag `VibeProxy.app` to the Applications folder
             4. Eject the DMG
-            5. Launch EllProxy from Applications
+            5. Launch VibeProxy from Applications
 
             ### What's New
 
-            See the [CHANGELOG](https://github.com/ellfarnaz/ellproxy/blob/main/CHANGELOG.md) for details.
-
-            ### ⚠️ Important: Unsigned Build
-
-            This release is **unsigned** (no Apple Developer account). 
-
-            **On first launch:**
-            1. Do NOT double-click the app
-            2. Right-click `EllProxy.app` → Click **"Open"**
-            3. Click **"Open"** in the security dialog
-            4. After first launch, you can double-click normally
+            See the [CHANGELOG](https://github.com/automazeio/vibeproxy/blob/main/CHANGELOG.md) for details.
 
             ### Verification
 
-            SHA-256 checksums are included for file integrity verification:
+            This release is **code signed** with Apple Developer ID and includes SHA-256 checksums for verification.
+
+            To verify the download:
             ```bash
-            shasum -a 256 -c EllProxy.zip.sha256
+            shasum -a 256 -c VibeProxy.zip.sha256
             ```
+
+            ---
+
+            ✅ **Code Signed & Notarized**: This app is signed with an Apple Developer ID and notarized by Apple
+
+            **No Gatekeeper warnings** - Double-click to install and run seamlessly!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact (for manual downloads)
         uses: actions/upload-artifact@v4
         with:
-          name: EllProxy-macOS-Signed
+          name: VibeProxy-macOS-Signed
           path: |
-            EllProxy.zip
-            EllProxy.dmg
+            VibeProxy.zip
+            VibeProxy.dmg
           retention-days: 30
