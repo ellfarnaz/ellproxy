@@ -27,7 +27,8 @@
   <p>
     <a href="USER_GUIDE.md">User Guide</a> | 
     <a href="CONTRIBUTING.md">Contributing</a> |
-    <a href="CHANGELOG.md">Changelog</a>
+    <a href="CHANGELOG.md">Changelog</a> |
+    <a href="https://github.com/ellfarnaz/ellproxy/issues">Report Issue</a>
   </p>
 </div>
 
