@@ -31,30 +31,36 @@ Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it
 
 ---
 
-## ✨ Key Features
+## 🚀 What Can You Do with EllProxy?
 
-### 🚀 **Supercharged AI Coding**
-- **Unified AI Access** - Use Gemini, Claude, OpenAI, Qwen, and DeepSeek, all from one place.
-- **Subscription Freedom** - Bring your own keys or subscriptions. stop overpaying for multiple limited tiers.
-- **Privacy First** - Your data stays yours. Runs locally on your machine with direct connections to providers.
-- **Coding Tool Integration** - Seamlessly works with major coding agents like Factory Droids, AmpCode, and more.
+EllProxy acts as a universal bridge between your AI accounts and your favorite coding tools.
 
-### 🧠 **Smart Model Management**
-- **One-Click Sync** - Automatically discover and add new models from your providers instantly.
-- **Auto-Failover** - Never get stuck. If a model is down, EllProxy automatically switches to your backup model.
-- **Smart Routing** - Set your preferred default models for different tasks (e.g., Gemini for speed, Claude for complex logic).
-- **Extended "Thinking"** - Unlock extended reasoning capabilities for models like Claude Sonnet 4.5 and DeepSeek.
+### 1. **Unlock Premium AI Without Extra Subs**
+Stop paying $20/mo for ChatGPT Plus, $20/mo for Claude Pro, and $20/mo for GitHub Copilot.
+*   **Bring Your Own Accounts:** Login once with your existing Google (Gemini), Anthropic, or OpenAI accounts.
+*   **Unlimited Access:** Use the same powerful models (Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro) directly in your editor.
 
-### 🛠️ **Effortless Control**
-- **Menu Bar Widget** - Control everything right from your macOS menu bar. Zero clutter.
-- **Multi-Account Manager** - Switch between multiple provider accounts effortlessly.
-- **Real-Time Status** - See connection health and active model usage at a glance.
-- **Auto-Updates** - Always stay on the cutting edge with automatic background updates.
+### 2. **One-Click Tool Setup**
+ forget about messing with `.env` files or API keys. EllProxy automatically detects and configures your favorite tools:
+*   **Editors:** Cursor, VS Code (Cline, Roo, Envoid), Zed, Trae, Windsurf.
+*   **CLIs:** Claude Code, AmpCode, Dictionary.
+*   **Agents:** Factory Droids.
+*(Just click "Setup" in the app, and we inject the correct proxy URL for you!)*
 
-### ⚡ **Designed for Speed**
-- **Native Performance** - Built specifically for macOS Silicon (M1/M2/M3/M4) for maximum efficiency.
-- **Instant Auth** - One-click OAuth login for all your providers. No complex config files.
-- **Low Latency** - Direct proxying ensures your coding assistant feels snappy and responsive.
+### 3. **Never Downtime with "Smart Failover"**
+Is Claude API acting up? EllProxy has your back.
+*   **Auto-Fallback:** Set Gemini or GPT-4o as your backup. If your main model fails, EllProxy instantly switches to the backup so your coding flow never breaks.
+*   **Panic Mode:** Flip "Routing" to OFF to force *all* requests to your cheap/fast default model immediately.
+
+### 4. **Supercharge Your "Reasoning" Models**
+Get the most out of "Thinking" models like Gemini 2.0 Flash Thinking or Claude 3.7 Sonnet.
+*   **Reasoning Slider:** Choose between **Low** (Fast), **Medium**, or **High** (Deep Thought) effort.
+*   **Cache:** We cache reasoning tokens to speed up repeated queries and save you money/quota.
+
+### 5. **Manage Models Like a Pro**
+*   **Auto-Sync:** New model released today? Click "Sync" and it appears in your list instantly.
+*   **Custom Models:** Have a fine-tuned model ID? Add it manually.
+*   **Visual Organization:** See models grouped by provider with live status indicators.
 
 ---
 
