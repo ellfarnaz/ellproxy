@@ -31,77 +31,30 @@ Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it
 
 ---
 
-## 🆕 What's New in EllProxy?
+## ✨ Key Features
 
-EllProxy extends the original VibeProxy with powerful new features:
+### 🚀 **Supercharged AI Coding**
+- **Unified AI Access** - Use Gemini, Claude, OpenAI, Qwen, and DeepSeek, all from one place.
+- **Subscription Freedom** - Bring your own keys or subscriptions. stop overpaying for multiple limited tiers.
+- **Privacy First** - Your data stays yours. Runs locally on your machine with direct connections to providers.
+- **Coding Tool Integration** - Seamlessly works with major coding agents like Factory Droids, AmpCode, and more.
 
-### 🏗️ **Modular Architecture**
-- **12 specialized modules** vs. VibeProxy's 10-file flat structure
-- Organized codebase: `App/`, `Services/`, `Views/`, `ThinkingProxy/`, `QuickSetup/`, `Models/`, `Config/`, `ServerManagement/`
-- Improved maintainability and scalability
-- Easier navigation for developers
+### 🧠 **Smart Model Management**
+- **One-Click Sync** - Automatically discover and add new models from your providers instantly.
+- **Auto-Failover** - Never get stuck. If a model is down, EllProxy automatically switches to your backup model.
+- **Smart Routing** - Set your preferred default models for different tasks (e.g., Gemini for speed, Claude for complex logic).
+- **Extended "Thinking"** - Unlock extended reasoning capabilities for models like Claude Sonnet 4.5 and DeepSeek.
 
-### 🎯 **Advanced Model Management**
-- **Model Discovery & Sync** - Automatically discover and sync available models from providers
-- **Provider-Based Organization** - Models organized by provider with JSON files (`claude.json`, `google.json`, etc.)
-- **Fallback Model Selection** - Configure fallback models when primary model is unavailable
-- **Default Model Configuration** - Set default models per provider
-- **Model Search** - Dedicated search interface for finding and managing models
+### 🛠️ **Effortless Control**
+- **Menu Bar Widget** - Control everything right from your macOS menu bar. Zero clutter.
+- **Multi-Account Manager** - Switch between multiple provider accounts effortlessly.
+- **Real-Time Status** - See connection health and active model usage at a glance.
+- **Auto-Updates** - Always stay on the cutting edge with automatic background updates.
 
-### 🔧 **Enhanced ThinkingProxy**
-- Modular thinking proxy with separated concerns:
-  - `Core/` - Configuration and protocols
-  - `Processing/` - Thinking parameter processing
-  - Individual feature modules: Connection, Forwarding, Response handling
-- **Reasoning Cache** - Optimized caching for thinking responses
-- **Provider-specific fixes** - DeepSeek, Anthropic, and image normalization modules
-
-### 🚀 **Automated Release System**
-- **Unsigned Build Support** - No Apple Developer account required
-- **Auto-Update Binary** - Automatically fetches latest CLIProxyAPIPlus
-- **Clean & Prepare Script** - One-command release preparation
-- **CI/CD Pipeline** - GitHub Actions for automated releases
-- **Security Audits** - Automatic config.yaml scanning for sensitive keys
-
-### 🎨 **Improved UI/UX**
-- **Sync Terminology** - Rebranded from "Testing" to "Sync" throughout UI
-- **Provider Names in Notifications** - "Syncing [Provider]: [Model]" format
-- **Add Model Interface** - Manual model addition with validation
-- **Fallback Model Picker** - Visual popover for fallback model selection
-- **Account Row Views** - Enhanced multi-account display
-
-### 🛠️ **Developer Tools**
-- **Trae-Proxy Service** - SSL certificate proxy (`services/trae-proxy/`)
-- **Consolidated Scripts** - All scripts in `scripts/` directory
-- **Dev Tools Isolation** - Development tools in `scripts/dev-tools/` (git ignored)
-- **Config Management** - Enhanced configuration system
-
-### 📦 **Project Organization**
-- **Services Subfolder** - External services organized in `services/`
-- **Updated .gitignore** - AI agent metadata folders excluded
-- **Professional Structure** - Clean separation of concerns
-
----
-
-## Features
-
-### Core Features (Inherited from VibeProxy)
-- 🎯 **Native macOS Experience** - Clean, native SwiftUI interface
-- 🚀 **One-Click Server Management** - Start/stop proxy from menu bar
-- 🔐 **OAuth Integration** - Codex, Claude Code, Gemini, Qwen, Antigravity, GitHub Copilot, iFlow, Kiro
-- 👥 **Multi-Account Support** - Multiple accounts per provider with round-robin and failover
-- 📊 **Real-Time Status** - Live connection status and credential detection
-- 🎨 **Beautiful Icons** - Custom icons with dark mode support
-- 💾 **Self-Contained** - Everything bundled inside .app
-
-### EllProxy Exclusive Features
-- 🧩 **Modular Codebase** - 12 specialized modules for better organization
-- 🎯 **Model Management System** - Discovery, sync, search, and fallback configuration
-- 🔄 **Enhanced Thinking Proxy** - Modular architecture with specialized processors
-- 🤖 **Automated Workflows** - CI/CD pipeline and release automation
-- 📱 **Improved Notifications** - Provider context in all sync messages
-- 🔧 **Trae-Proxy Integration** - SSL certificate management
-- 🛡️ **Security Audits** - Automated sensitive key detection
+### ⚡ **Designed for Speed**
+- **Native Performance** - Built specifically for macOS Silicon (M1/M2/M3/M4) for maximum efficiency.
+- **Instant Auth** - One-click OAuth login for all your providers. No complex config files.
+- **Low Latency** - Direct proxying ensures your coding assistant feels snappy and responsive.
 
 ---
 
