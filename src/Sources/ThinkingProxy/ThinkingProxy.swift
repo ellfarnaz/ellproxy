@@ -227,6 +227,25 @@ class ThinkingProxy {
             // with EXC_BAD_ACCESS in _platform_strlen. See crash report 2025-12-27-133800.
             // If debugging is needed, truncate the body first or log only the first 500 chars.
             
+            // APPLY MODEL ROUTING
+            // This is critical for both normal routing and "Route OFF" (Panic Mode)
+            if let data = modifiedBody.data(using: .utf8),
+               var json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let requestedModel = json["model"] as? String {
+                
+                let routedModel = ModelRouter.shared.rewriteModel(requestedModel: requestedModel)
+                
+                if routedModel != requestedModel {
+                    NSLog("[ThinkingProxy] Routing model: '%@' → '%@'", requestedModel, routedModel)
+                    json["model"] = routedModel
+                    
+                    if let newData = try? JSONSerialization.data(withJSONObject: json),
+                       let newString = String(data: newData, encoding: .utf8) {
+                        modifiedBody = newString
+                    }
+                }
+            }
+            
             if let result = processThinkingParameter(jsonString: modifiedBody, isSyncTest: isSyncTest, providerName: providerName) {
                 modifiedBody = result.0
                 thinkingEnabled = result.1
