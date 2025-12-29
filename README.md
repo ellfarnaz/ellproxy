@@ -81,6 +81,10 @@ By leveraging this app, you can transform common AI subscriptions (Claude, Gemin
         <img src="docs/screenshots/view_2.png" width="400px">
         <br><b>Quick Setup</b><br>Auto-configure your favorite tools in seconds.
       </td>
+      <td align="center">
+        <img src="docs/screenshots/view_3.png" width="400px">
+        <br><b>Advanced Details</b><br>Deep dive into model capabilities.
+      </td>
     </tr>
   </table>
 </div>
