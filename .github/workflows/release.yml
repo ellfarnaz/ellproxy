@@ -25,12 +25,12 @@ jobs:
         with:
           swift-version: "5.9"
 
-      # Import Apple Developer certificates
-      - name: Import Code Signing Certificates
-        uses: apple-actions/import-codesign-certs@v2
-        with:
-          p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
-          p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
+      # Import Apple Developer certificates (SKIPPED - No Apple Developer Account)
+      # - name: Import Code Signing Certificates
+      #   uses: apple-actions/import-codesign-certs@v2
+      #   with:
+      #     p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
+      #     p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
 
       # Install the provisioning profile (if needed for distribution)
       # Note: Not typically needed for Developer ID distribution
@@ -51,58 +51,23 @@ jobs:
           echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
           echo "Building version: ${VERSION} (build ${BUILD_NUMBER})"
 
-      - name: Build app bundle
+      - name: Build app bundle (unsigned)
         env:
-          CODESIGN_IDENTITY: ${{ secrets.APPLE_DEVELOPER_ID_APPLICATION }}
           APP_VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
           chmod +x create-app-bundle.sh
           ./create-app-bundle.sh
+          echo "✅ App built with ad-hoc signature (unsigned)"
 
-      # Verify the signing
-      - name: Verify Code Signature
-        run: |
-          codesign --verify --deep --strict --verbose=2 EllProxy.app
-          codesign -dv --verbose=4 EllProxy.app
-          spctl -a -vvv -t install EllProxy.app || echo "⚠️ Gatekeeper check failed (expected without notarization)"
+      # Verify the signing (SKIPPED - ad-hoc signature only)
+      # - name: Verify Code Signature
+      #   run: |
+      #     codesign --verify --deep --strict --verbose=2 EllProxy.app
+      #     codesign -dv --verbose=4 EllProxy.app
+      #     spctl -a -vvv -t install EllProxy.app || echo "⚠️ Gatekeeper check failed (expected without notarization)"
 
-      # Notarize the app for seamless installation (no Gatekeeper warnings)
-      - name: Notarize App
-        run: |
-          # Create a ZIP for notarization
-          ditto -c -k --sequesterRsrc --keepParent "EllProxy.app" "EllProxy-notarize.zip"
-
-          # Submit for notarization and capture the submission ID
-          echo "Submitting app for notarization..."
-          SUBMIT_OUTPUT=$(xcrun notarytool submit "EllProxy-notarize.zip" \
-            --apple-id "${{ secrets.APPLE_ID }}" \
-            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-            --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" \
-            --wait --output-format json)
-
-          echo "$SUBMIT_OUTPUT"
-          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | jq -r '.id')
-          STATUS=$(echo "$SUBMIT_OUTPUT" | jq -r '.status')
-
-          # If it failed, get the detailed log
-          if [ "$STATUS" != "Accepted" ]; then
-            echo "❌ Notarization failed with status: $STATUS"
-            echo "📋 Getting detailed log..."
-            xcrun notarytool log "$SUBMISSION_ID" \
-              --apple-id "${{ secrets.APPLE_ID }}" \
-              --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-              --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
-            exit 1
-          fi
-
-          # Staple the notarization ticket
-          echo "✅ Notarization succeeded! Stapling ticket..."
-          xcrun stapler staple "EllProxy.app"
-          xcrun stapler validate "EllProxy.app"
-          echo "✅ App successfully notarized and stapled!"
-
-          # Remove the notarization ZIP
-          rm "EllProxy-notarize.zip"
+      # Notarize the app (SKIPPED - requires Apple Developer Account)
+      # Users will need to right-click > Open to bypass Gatekeeper
 
       - name: Create DMG
         run: |
@@ -141,71 +106,36 @@ jobs:
             shasum -a 256 EllProxy.dmg > EllProxy.dmg.sha256
           fi
 
-      - name: Sign update for Sparkle
-        id: sparkle_sign
-        env:
-          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-        run: |
-          # Find the Sparkle sign_update tool
-          SIGN_UPDATE=$(find src/.build -name "sign_update" -type f | grep -v old_dsa | head -1)
+      # Sign update for Sparkle (SKIPPED - requires Sparkle private key)
+      # Auto-update feature will not work without this signature
+      # - name: Sign update for Sparkle
+      #   id: sparkle_sign
+      #   env:
+      #     SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      #   run: |
+      #     SIGN_UPDATE=$(find src/.build -name "sign_update" -type f | grep -v old_dsa | head -1)
+      #     if [ -z "$SIGN_UPDATE" ]; then
+      #       echo "Error: sign_update not found"
+      #       exit 1
+      #     fi
+      #     SIGNATURE=$(echo "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" EllProxy.zip --ed-key-file -)
+      #     ED_SIGNATURE=$(echo "$SIGNATURE" | grep -o 'sparkle:edSignature="[^"]*"' | sed 's/sparkle:edSignature="//;s/"$//')
+      #     LENGTH=$(stat -f%z EllProxy.zip)
+      #     echo "ed_signature=$ED_SIGNATURE" >> $GITHUB_OUTPUT
+      #     echo "length=$LENGTH" >> $GITHUB_OUTPUT
 
-          if [ -z "$SIGN_UPDATE" ]; then
-            echo "Error: sign_update not found"
-            find src/.build -name "sign_update" -type f
-            exit 1
-          fi
+      # Update appcast.xml (SKIPPED - requires Sparkle signature)
+      # - name: Update appcast.xml
+      #   env:
+      #     VERSION: ${{ steps.get_version.outputs.VERSION }}
+      #     BUILD_NUMBER: ${{ steps.get_version.outputs.BUILD_NUMBER }}
+      #   run: |
+      #     echo "Skipping appcast.xml update (no Sparkle signature)"
 
-          echo "Using sign_update: $SIGN_UPDATE"
-
-          # Sign the ZIP file
-          SIGNATURE=$(echo "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" EllProxy.zip --ed-key-file -)
-
-          # Extract signature and length
-          ED_SIGNATURE=$(echo "$SIGNATURE" | grep -o 'sparkle:edSignature="[^"]*"' | sed 's/sparkle:edSignature="//;s/"$//')
-          LENGTH=$(stat -f%z EllProxy.zip)
-
-          echo "ed_signature=$ED_SIGNATURE" >> $GITHUB_OUTPUT
-          echo "length=$LENGTH" >> $GITHUB_OUTPUT
-          echo "Sparkle signature generated"
-
-      - name: Update appcast.xml
-        env:
-          VERSION: ${{ steps.get_version.outputs.VERSION }}
-          BUILD_NUMBER: ${{ steps.get_version.outputs.BUILD_NUMBER }}
-          ED_SIGNATURE: ${{ steps.sparkle_sign.outputs.ed_signature }}
-          LENGTH: ${{ steps.sparkle_sign.outputs.length }}
-        run: |
-          TODAY=$(date -u +"%a, %d %b %Y %H:%M:%S +0000")
-
-          # Create new item entry in a temp file
-          cat > /tmp/new_item.xml << ENDOFITEM
-              <item>
-                <title>Version ${VERSION}</title>
-                <sparkle:version>${BUILD_NUMBER}</sparkle:version>
-                <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
-                <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-                <pubDate>${TODAY}</pubDate>
-                <enclosure url="https://github.com/automazeio/vibeproxy/releases/download/v${VERSION}/EllProxy.zip"
-                           type="application/octet-stream"
-                           sparkle:edSignature="${ED_SIGNATURE}"
-                           length="${LENGTH}"/>
-              </item>
-          ENDOFITEM
-
-          # Insert new item after <language> line
-          sed -i.bak '/<language>en<\/language>/r /tmp/new_item.xml' appcast.xml
-          rm -f appcast.xml.bak /tmp/new_item.xml
-
-          echo "Updated appcast.xml with version ${VERSION}"
-          head -30 appcast.xml
-
-      - name: Commit appcast.xml
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add appcast.xml
-          git commit -m "Update appcast.xml for v${{ steps.get_version.outputs.VERSION }}" || echo "No changes to commit"
-          git push origin HEAD:main
+      # Commit appcast.xml (SKIPPED)
+      # - name: Commit appcast.xml
+      #   run: |
+      #     echo "Skipping appcast.xml commit"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
