@@ -182,7 +182,7 @@ Click the **search icon** (🔍) in toolbar to open Model Search.
 
 View all discovered models with details.
 
-![Available Models List](docs/screenshots/available-models.png)
+![Available Models List](docs/screenshots/view_1.png)
 
 #### Information Shown:
 - **Model name**: Full identifier (e.g., "Gemini 2.5 Flash")
