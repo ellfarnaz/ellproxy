@@ -1,24 +1,26 @@
-# VibeProxy
+# EllProxy
 
 <p align="center">
-  <img src="icon.png" width="128" height="128" alt="VibeProxy Icon">
+  <img src="icon.png" width="128" height="128" alt="EllProxy Icon">
 </p>
 
-<p align="center">
-<a href="https://automaze.io" rel="nofollow"><img alt="Automaze" src="https://img.shields.io/badge/By-automaze.io-4b3baf" style="max-width: 100%;"></a>
-<a href="https://github.com/automazeio/vibeproxy/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-28a745" style="max-width: 100%;"></a>
-<a href="http://x.com/intent/follow?screen_name=aroussi" rel="nofollow"><img alt="Follow on 𝕏" src="https://img.shields.io/badge/Follow-%F0%9D%95%8F/@aroussi-1c9bf0" style="max-width: 100%;"></a>
-<a href="https://github.com/automazeio/vibeproxy"><img alt="Star this repo" src="https://img.shields.io/github/stars/automazeio/vibeproxy.svg?style=social&amp;label=Star%20this%20repo&amp;maxAge=60" style="max-width: 100%;"></a></p>
-</p>
+> [!NOTE]
+> **Forked from [VibeProxy](https://github.com/automazeio/vibeproxy)**
+> 
+> This is a customized fork of the excellent VibeProxy project by [Automaze, Ltd.](https://automaze.io)
+> 
+> Original project: https://github.com/automazeio/vibeproxy
 
-**Stop paying twice for AI.** VibeProxy is a beautiful native macOS menu bar app that lets you use your existing Claude Code, ChatGPT, **Gemini**, **Qwen**, and **Antigravity** subscriptions with powerful AI coding tools like **[Factory Droids](https://app.factory.ai/r/FM8BJHFQ)** – no separate API keys required.
+---
+
+**Stop paying twice for AI.** EllProxy is a beautiful native macOS menu bar app that lets you use your existing Claude Code, ChatGPT, **Gemini**, **Qwen**, and **Antigravity** subscriptions with powerful AI coding tools like **[Factory Droids](https://app.factory.ai/r/FM8BJHFQ)** – no separate API keys required.
 
 Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it handles OAuth authentication, token management, and API routing automatically. One click to authenticate, zero friction to code.
 
 
 <p align="center">
 <br>
-  <a href="https://www.loom.com/share/5cf54acfc55049afba725ab443dd3777"><img src="vibeproxy-factory-video.webp" width="600" height="380" alt="VibeProxy Screenshot" border="0"></a>
+  <a href="https://www.loom.com/share/5cf54acfc55049afba725ab443dd3777"><img src="ellproxy-factory-video.webp" width="600" height="380" alt="EllProxy Screenshot" border="0"></a>
 </p>
 
 > [!TIP]
@@ -37,7 +39,7 @@ Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it
 - 🔐 **OAuth Integration** - Authenticate with Codex, Claude Code, Gemini, Qwen, Antigravity, GitHub Copilot, iFlow, and Kiro directly from the app
 - 👥 **Multi-Account Support** - Connect multiple accounts per provider with automatic round-robin distribution and failover when rate-limited
 - 📊 **Real-Time Status** - Live connection status and automatic credential detection
-- 🔄 **Automatic App Updates** - Starting with v1.6, VibeProxy checks for updates daily and installs them seamlessly via Sparkle
+- 🔄 **Automatic App Updates** - EllProxy can check for updates and install them seamlessly via Sparkle
 - 🎨 **Beautiful Icons** - Custom icons with dark mode support
 - 💾 **Self-Contained** - Everything bundled inside the .app (server binary, config, static files)
 
@@ -48,22 +50,17 @@ Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it
 
 ### Download Pre-built Release (Recommended)
 
-1. Go to the [**Releases**](https://github.com/automazeio/vibeproxy/releases) page
-2. Download the latest `VibeProxy.zip`
-3. Extract and drag `VibeProxy.app` to `/Applications`
-4. Launch VibeProxy
-
-**Code Signed & Notarized** ✅ - No Gatekeeper warnings, installs seamlessly on macOS.
+*Note: Pre-built releases for EllProxy are not available. Please build from source.*
 
 ### Build from Source
 
-Want to build it yourself? See [**INSTALLATION.md**](INSTALLATION.md) for detailed build instructions.
+See [**INSTALLATION.md**](INSTALLATION.md) for detailed build instructions.
 
 ## Usage
 
 ### First Launch
 
-1. Launch VibeProxy - you'll see a menu bar icon
+1. Launch EllProxy - you'll see a menu bar icon
 2. Click the icon and select "Open Settings"
 3. The server will start automatically
 4. Click "Connect" for Claude Code, Codex, Gemini, Qwen, or Antigravity to authenticate
@@ -73,14 +70,14 @@ Want to build it yourself? See [**INSTALLATION.md**](INSTALLATION.md) for detail
 When you click "Connect":
 1. Your browser opens with the OAuth page
 2. Complete the authentication in the browser
-3. VibeProxy automatically detects your credentials
+3. EllProxy automatically detects your credentials
 4. Status updates to show you're connected
 
 ### Server Management
 
 - **Toggle Server**: Click the status (Running/Stopped) to start/stop
 - **Menu Bar Icon**: Shows active/inactive state
-- **Launch at Login**: Toggle to start VibeProxy automatically
+- **Launch at Login**: Toggle to start EllProxy automatically
 
 ## Requirements
 
@@ -91,7 +88,7 @@ When you click "Connect":
 ### Project Structure
 
 ```
-VibeProxy/
+EllProxy/
 ├── Sources/
 │   ├── main.swift              # App entry point
 │   ├── AppDelegate.swift       # Menu bar & window management
@@ -126,19 +123,20 @@ VibeProxy/
 
 ## Credits
 
-VibeProxy is built on top of [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), an excellent unified proxy server for AI services with support for third-party providers.
+EllProxy is a fork of [VibeProxy](https://github.com/automazeio/vibeproxy) by [Automaze, Ltd.](https://automaze.io)
 
-Special thanks to the CLIProxyAPIPlus project for providing the core functionality that makes VibeProxy possible.
+Both EllProxy and VibeProxy are built on top of [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), an excellent unified proxy server for AI services with support for third-party providers.
+
+Special thanks to:
+- The **VibeProxy** team at Automaze for creating the original macOS wrapper
+- The **CLIProxyAPIPlus** project for providing the core proxy functionality
 
 ## License
 
 MIT License - see LICENSE file for details
 
-## Support
-
-- **Report Issues**: [GitHub Issues](https://github.com/automazeio/vibeproxy/issues)
-- **Website**: [automaze.io](https://automaze.io)
+Original VibeProxy: © 2025 [Automaze, Ltd.](https://automaze.io)
 
 ---
 
-© 2025 [Automaze, Ltd.](https://automaze.io) All rights reserved.
+*Based on VibeProxy - https://github.com/automazeio/vibeproxy*

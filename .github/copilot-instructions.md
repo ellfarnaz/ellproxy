@@ -1,8 +1,8 @@
-# VibeProxy - Copilot Instructions
+# EllProxy - Copilot Instructions
 
 ## Project Overview
 
-VibeProxy is a native macOS menu bar app (SwiftUI) that proxies AI API requests through existing subscriptions (Claude Code, Codex, Gemini, Qwen, Antigravity, GitHub Copilot). It wraps CLIProxyAPIPlus binary and adds extended thinking support for Claude models.
+EllProxy is a native macOS menu bar app (SwiftUI) that proxies AI API requests through existing subscriptions (Claude Code, Codex, Gemini, Qwen, Antigravity, GitHub Copilot). It wraps CLIProxyAPIPlus binary and adds extended thinking support for Claude models.
 
 **Apple Silicon only** • Swift 5.9+ • macOS 14+
 
@@ -45,7 +45,7 @@ make clean      # Remove build artifacts
 
 **Direct Swift build**: `cd src && swift build -c release`
 
-**App bundle structure**: `create-app-bundle.sh` copies binary, resources, and Sparkle.framework to `VibeProxy.app/Contents/`
+**App bundle structure**: `create-app-bundle.sh` copies binary, resources, and Sparkle.framework to `EllProxy.app/Contents/`
 
 ## Testing & Debugging
 

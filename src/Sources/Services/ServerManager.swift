@@ -2,47 +2,8 @@ import Foundation
 import Combine
 import AppKit
 
-private struct RingBuffer<Element> {
-    private var storage: [Element?]
-    private var head = 0
-    private var tail = 0
-    private(set) var count = 0
-    
-    init(capacity: Int) {
-        let safeCapacity = max(1, capacity)
-        storage = Array(repeating: nil, count: safeCapacity)
-    }
-    
-    mutating func append(_ element: Element) {
-        let capacity = storage.count
-        storage[tail] = element
-        
-        if count == capacity {
-            head = (head + 1) % capacity
-        } else {
-            count += 1
-        }
-        
-        tail = (tail + 1) % capacity
-    }
-    
-    func elements() -> [Element] {
-        let capacity = storage.count
-        guard count > 0 else { return [] }
-        
-        var result: [Element] = []
-        result.reserveCapacity(count)
-        
-        for index in 0..<count {
-            let storageIndex = (head + index) % capacity
-            if let value = storage[storageIndex] {
-                result.append(value)
-            }
-        }
-        
-        return result
-    }
-}
+// NOTE: RingBuffer extracted to ServerManagement/RingBuffer.swift
+// NOTE: AuthCommand extracted to ServerManagement/AuthCommand.swift
 
 class ServerManager: ObservableObject {
     private var process: Process?
@@ -55,7 +16,7 @@ class ServerManager: ObservableObject {
     }
     private var logBuffer: RingBuffer<String>
     private let maxLogLines = 1000
-    private let processQueue = DispatchQueue(label: "io.automaze.vibeproxy.server-process", qos: .userInitiated)
+    private let processQueue = DispatchQueue(label: "io.automaze.ellproxy.server-process", qos: .userInitiated)
     
     private enum Timing {
         static let readinessCheckDelay: TimeInterval = 1.0
@@ -107,7 +68,7 @@ class ServerManager: ObservableObject {
         }
 
         // Ensure user config dir exists and is writable
-        let userConfigDir = (FileManager.default.homeDirectoryForCurrentUser as NSURL).appendingPathComponent(".vibeproxy")!.path
+        let userConfigDir = (FileManager.default.homeDirectoryForCurrentUser as NSURL).appendingPathComponent(".ellproxy")!.path
         do {
             try FileManager.default.createDirectory(atPath: userConfigDir, withIntermediateDirectories: true, attributes: [FileAttributeKey.posixPermissions: 0o700])
         } catch {
@@ -390,12 +351,12 @@ class ServerManager: ObservableObject {
                     completion(true, "🌐 Browser opened for authentication.\n\nPlease complete the login in your browser.\n\nThe app will automatically detect when you're authenticated.")
                 } else {
                     // Process died quickly - check for error
-                    let outputData = try? outputPipe.fileHandleForReading.readDataToEndOfFile()
-                    let errorData = try? errorPipe.fileHandleForReading.readDataToEndOfFile()
+                    let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+                    let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
                     
-                    var output = String(data: outputData ?? Data(), encoding: .utf8) ?? ""
+                    var output = String(data: outputData, encoding: .utf8) ?? ""
                     if output.isEmpty { output = capture.text }
-                    let error = String(data: errorData ?? Data(), encoding: .utf8) ?? ""
+                    let error = String(data: errorData, encoding: .utf8) ?? ""
                     
                     NSLog("[Auth] Process died quickly - output: %@", output.isEmpty ? "(empty)" : String(output.prefix(200)))
                     
@@ -425,12 +386,12 @@ class ServerManager: ObservableObject {
             let logLine = "[\(timestamp)] \(message)"
             
             self.logBuffer.append(logLine)
-            self.onLogUpdate?(self.logBuffer.elements())
+            self.onLogUpdate?(self.logBuffer.toArray())
         }
     }
     
     func getLogs() -> [String] {
-        return logBuffer.elements()
+        return logBuffer.toArray()
     }
     
     /// Kill any orphaned cli-proxy-api-plus processes that might be running
@@ -477,13 +438,3 @@ class ServerManager: ObservableObject {
     }
 }
 
-enum AuthCommand: Equatable {
-    case claudeLogin
-    case codexLogin
-    case copilotLogin
-    case geminiLogin
-    case qwenLogin(email: String)
-    case antigravityLogin
-    case iflowLogin
-    case kiroLogin
-}

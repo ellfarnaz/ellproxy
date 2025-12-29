@@ -7,15 +7,15 @@
     <key>CFBundleExecutable</key>
     <string>CLIProxyMenuBar</string>
     <key>CFBundleIdentifier</key>
-    <string>com.vibeproxy.app</string>
+    <string>com.ellproxy.app</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>VibeProxy</string>
+    <string>EllProxy</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.5.0</string>
+    <string>1.0.0-beta</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleVersion</key>
@@ -27,16 +27,18 @@
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2025 Automaze, Ltd. All rights reserved.</string>
+    <string>Copyright © 2025 Ellfarnaz. All rights reserved.</string>
     <key>SUFeedURL</key>
-    <string>https://raw.githubusercontent.com/automazeio/vibeproxy/main/appcast.xml</string>
+    <string>https://raw.githubusercontent.com/ellfarnaz/ellproxy/main/appcast.xml</string>
     <key>SUScheduledCheckInterval</key>
     <integer>86400</integer>
     <key>SUAutomaticallyUpdate</key>
     <false/>
     <key>SUEnableAutomaticChecks</key>
     <true/>
+    <key>SUAllowsInsecureUpdates</key>
+    <true/>
     <key>SUPublicEDKey</key>
-    <string>WPYQNlG8Z9CI+OBiPa4bph6Dz01vdPRGZhilQGA/rQw=</string>
+    <string>Gs64TTcx22lk3adWxnbNrAjaOlNK2WX3UXqXR28F878=</string>
 </dict>
 </plist>

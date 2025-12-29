@@ -1,0 +1,26 @@
+{
+  "provider": "qwen",
+  "models": [
+    {
+      "id": "vision-model",
+      "name": "Qwen Vision Model",
+      "provider": "qwen",
+      "upstream_model": "vision-model",
+      "supports_thinking": false
+    },
+    {
+      "id": "qwen3-coder-flash",
+      "name": "Qwen3 Coder Flash",
+      "provider": "qwen",
+      "upstream_model": "qwen3-coder-flash",
+      "supports_thinking": false
+    },
+    {
+      "id": "qwen3-coder-plus",
+      "name": "Qwen3 Coder Plus (480B)",
+      "provider": "qwen",
+      "upstream_model": "qwen3-coder-plus",
+      "supports_thinking": false
+    }
+  ]
+}

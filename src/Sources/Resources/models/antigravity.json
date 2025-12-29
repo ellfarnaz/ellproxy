@@ -1,0 +1,75 @@
+{
+  "provider": "antigravity",
+  "models": [
+    {
+      "id": "gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash",
+      "provider": "antigravity",
+      "upstream_model": "gemini-2.5-flash",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-2.5-flash-lite",
+      "name": "Gemini 2.5 Flash Lite",
+      "provider": "antigravity",
+      "upstream_model": "gemini-2.5-flash-lite",
+      "supports_thinking": false
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "name": "Gemini 3 Flash (Preview)",
+      "provider": "antigravity",
+      "upstream_model": "gemini-3-flash-preview",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-3-pro-preview",
+      "name": "Gemini 3 Pro (Preview)",
+      "provider": "antigravity",
+      "upstream_model": "gemini-3-pro-preview",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-3-pro-image-preview",
+      "name": "Gemini 3 Pro Image (Preview)",
+      "provider": "antigravity",
+      "upstream_model": "gemini-3-pro-image-preview",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-2.5-computer-use-preview-10-2025",
+      "name": "Gemini 2.5 Computer Use (Preview)",
+      "provider": "antigravity",
+      "upstream_model": "gemini-2.5-computer-use-preview-10-2025",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-claude-sonnet-4-5",
+      "name": "Gemini Claude Sonnet 4.5",
+      "provider": "antigravity",
+      "upstream_model": "gemini-claude-sonnet-4-5",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-claude-sonnet-4-5-thinking",
+      "name": "Gemini Claude Sonnet 4.5 (Thinking)",
+      "provider": "antigravity",
+      "upstream_model": "gemini-claude-sonnet-4-5-thinking",
+      "supports_thinking": true
+    },
+    {
+      "id": "gemini-claude-opus-4-5-thinking",
+      "name": "Gemini Claude Opus 4.5 (Thinking)",
+      "provider": "antigravity",
+      "upstream_model": "gemini-claude-opus-4-5-thinking",
+      "supports_thinking": true
+    },
+    {
+      "id": "gpt-oss-120b-medium",
+      "name": "GPT OSS 120B Medium",
+      "provider": "antigravity",
+      "upstream_model": "gpt-oss-120b-medium",
+      "supports_thinking": false
+    }
+  ]
+}

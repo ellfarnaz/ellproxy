@@ -1,154 +1,7 @@
 import SwiftUI
 import ServiceManagement
 
-/// A single account row with remove button
-struct AccountRowView: View {
-    let account: AuthAccount
-    let removeColor: Color
-    let onRemove: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(account.isExpired ? Color.orange : Color.green)
-                .frame(width: 6, height: 6)
-            Text(account.displayName)
-                .font(.caption)
-                .foregroundColor(account.isExpired ? .orange : .secondary)
-            if account.isExpired {
-                Text("(expired)")
-                    .font(.caption2)
-                    .foregroundColor(.orange)
-            }
-            Button(action: onRemove) {
-                HStack(spacing: 2) {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.caption)
-                    Text("Remove")
-                        .font(.caption)
-                }
-                .foregroundColor(removeColor)
-            }
-            .buttonStyle(.plain)
-            .padding(.leading, 8)
-            .onHover { inside in
-                if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-            }
-        }
-        .padding(.leading, 28)
-    }
-}
-
-/// A row displaying a service with its connected accounts and add button
-struct ServiceRow: View {
-    let serviceType: ServiceType
-    let iconName: String
-    let accounts: [AuthAccount]
-    let isAuthenticating: Bool
-    let helpText: String?
-    let onConnect: () -> Void
-    let onDisconnect: (AuthAccount) -> Void
-    var onExpandChange: ((Bool) -> Void)? = nil
-    
-    @State private var isExpanded = false
-    @State private var accountToRemove: AuthAccount?
-    @State private var showingRemoveConfirmation = false
-    
-    private var activeCount: Int { accounts.filter { !$0.isExpired }.count }
-    private var expiredCount: Int { accounts.filter { $0.isExpired }.count }
-    private let removeColor = Color(red: 0xeb/255, green: 0x0f/255, blue: 0x0f/255)
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            // Header row
-            HStack {
-                if let nsImage = IconCatalog.shared.image(named: iconName, resizedTo: NSSize(width: 20, height: 20), template: true) {
-                    Image(nsImage: nsImage)
-                        .resizable()
-                        .renderingMode(.template)
-                        .frame(width: 20, height: 20)
-                }
-                Text(serviceType.displayName)
-                    .fontWeight(.medium)
-                Spacer()
-                if isAuthenticating {
-                    ProgressView()
-                        .controlSize(.small)
-                } else {
-                    Button("Add Account") {
-                        onConnect()
-                    }
-                    .controlSize(.small)
-                }
-            }
-            
-            // Account display
-            if !accounts.isEmpty {
-                // Collapsible summary
-                HStack(spacing: 4) {
-                    Text("\(accounts.count) connected account\(accounts.count == 1 ? "" : "s")")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                    
-                    if accounts.count > 1 {
-                        Text("• Round-robin w/ auto-failover")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.leading, 28)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isExpanded.toggle()
-                    }
-                }
-                
-                // Expanded accounts list
-                if isExpanded {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(accounts) { account in
-                            AccountRowView(account: account, removeColor: removeColor) {
-                                accountToRemove = account
-                                showingRemoveConfirmation = true
-                            }
-                        }
-                    }
-                    .padding(.top, 4)
-                }
-            } else {
-                Text("No connected accounts")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.leading, 28)
-            }
-        }
-        .padding(.vertical, 4)
-        .help(helpText ?? "")
-        .onChange(of: isExpanded) { _, newValue in
-            onExpandChange?(newValue)
-        }
-        .alert("Remove Account", isPresented: $showingRemoveConfirmation) {
-            Button("Cancel", role: .cancel) {
-                accountToRemove = nil
-            }
-            Button("Remove", role: .destructive) {
-                if let account = accountToRemove {
-                    onDisconnect(account)
-                }
-                accountToRemove = nil
-            }
-        } message: {
-            if let account = accountToRemove {
-                Text("Are you sure you want to remove \(account.displayName) from \(serviceType.displayName)?")
-            }
-        }
-    }
-}
+// NOTE: AccountRowView and ServiceRow extracted to Settings/Components/
 
 struct SettingsView: View {
     @ObservedObject var serverManager: ServerManager
@@ -164,6 +17,7 @@ struct SettingsView: View {
     @State private var pendingRefresh: DispatchWorkItem?
     @State private var expandedRowCount = 0
     @State private var selectedTab = 0
+    @State private var isForwardNav = true
     
     private enum Timing {
         static let serverRestartDelay: TimeInterval = 0.3
@@ -180,7 +34,15 @@ struct SettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Tab Picker
-            Picker("", selection: $selectedTab) {
+            Picker("", selection: Binding(
+                get: { selectedTab },
+                set: { newValue in
+                    isForwardNav = newValue > selectedTab
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        selectedTab = newValue
+                    }
+                }
+            )) {
                 Text("Services").tag(0)
                 Text("Models").tag(1)
                 Text("Quick Setup").tag(2)
@@ -190,14 +52,29 @@ struct SettingsView: View {
             .padding(.top, 12)
             .padding(.bottom, 8)
 
-            // Tab Content
-            if selectedTab == 0 {
-                servicesTab
-            } else if selectedTab == 1 {
-                ModelsView()
-            } else {
-                QuickSetupView()
+            // Tab Content with directional slide animation
+            ZStack {
+                if selectedTab == 0 {
+                    servicesTab
+                        .transition(.asymmetric(
+                            insertion: .move(edge: isForwardNav ? .trailing : .leading),
+                            removal: .move(edge: isForwardNav ? .leading : .trailing)
+                        ))
+                } else if selectedTab == 1 {
+                    ModelsView()
+                        .transition(.asymmetric(
+                            insertion: .move(edge: isForwardNav ? .trailing : .leading),
+                            removal: .move(edge: isForwardNav ? .leading : .trailing)
+                        ))
+                } else {
+                    QuickSetupView()
+                        .transition(.asymmetric(
+                            insertion: .move(edge: isForwardNav ? .trailing : .leading),
+                            removal: .move(edge: isForwardNav ? .leading : .trailing)
+                        ))
+                }
             }
+            // Animation provided by binding
         }
         .frame(width: 520, height: 720)
         .sheet(isPresented: $showingQwenEmailPrompt) {
@@ -381,41 +258,33 @@ struct SettingsView: View {
             // Footer
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
-                    Text("VibeProxy \(appVersion) was made possible thanks to")
+                    Text("EllProxy \(appVersion) - Forked with ❤️ from")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Link("VibeProxy", destination: URL(string: "https://github.com/automazeio/vibeproxy")!)
+                        .font(.caption)
+                        .underline()
+                        .foregroundColor(.secondary)
+                    Text("|")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Link("CLIProxyAPIPlus", destination: URL(string: "https://github.com/router-for-me/CLIProxyAPIPlus")!)
                         .font(.caption)
                         .underline()
                         .foregroundColor(.secondary)
-                        .onHover { inside in
-                            if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-                        }
-                    Text("|")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("License: MIT")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
 
                 HStack(spacing: 4) {
-                    Text("© 2025")
+                    Text("© 2025 Ellfarnaz | Special thanks to")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Link("Automaze, Ltd.", destination: URL(string: "https://automaze.io")!)
                         .font(.caption)
                         .underline()
                         .foregroundColor(.secondary)
-                        .onHover { inside in
-                            if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-                        }
-                    Text("All rights reserved.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
 
-                Link("Report an issue", destination: URL(string: "https://github.com/automazeio/vibeproxy/issues")!)
+                Link("Report an issue", destination: URL(string: "https://github.com/ellfarnaz/ellproxy/issues")!)
                     .font(.caption)
                     .padding(.top, 6)
                     .onHover { inside in

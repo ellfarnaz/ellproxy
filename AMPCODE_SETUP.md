@@ -1,17 +1,17 @@
 # Amp CLI Setup Guide
 
-This guide explains how to configure Amp CLI to work with VibeProxy, enabling you to use both Factory and Amp through a single proxy server.
+This guide explains how to configure Amp CLI to work with EllProxy, enabling you to use both Factory and Amp through a single proxy server.
 
 ## Overview
 
-VibeProxy integrates with Amp CLI by:
+EllProxy integrates with Amp CLI by:
 - Routing Amp management requests (login, settings) to ampcode.com
 - Routing Amp model requests through CLIProxyAPI
 - Automatically falling back to ampcode.com for models you haven't authenticated locally
 
 ## Prerequisites
 
-- VibeProxy installed and running
+- EllProxy installed and running
 - Amp CLI installed (`amp --version` to verify)
 
 ## Setup Steps
@@ -29,7 +29,7 @@ cat > ~/.config/amp/settings.json << 'EOF'
 EOF
 ```
 
-This tells Amp CLI to use VibeProxy instead of connecting directly to ampcode.com.
+This tells Amp CLI to use EllProxy instead of connecting directly to ampcode.com.
 
 ### 2. Login to Amp
 
@@ -41,7 +41,7 @@ amp login
 
 This will:
 1. Open your browser to `http://localhost:8317/api/auth/cli-login`
-2. VibeProxy forwards the request to ampcode.com
+2. EllProxy forwards the request to ampcode.com
 3. You complete the login in your browser
 4. Amp CLI saves your API key to `~/.local/share/amp/secrets.json`
 
@@ -109,12 +109,12 @@ else:
 EOF
 ```
 
-### 4. Restart VibeProxy
+### 4. Restart EllProxy
 
 For CLIProxyAPI to pick up the new API key:
 
-1. Quit VibeProxy from the menu bar
-2. Launch VibeProxy again
+1. Quit EllProxy from the menu bar
+2. Launch EllProxy again
 
 ## Usage
 
@@ -168,7 +168,7 @@ When Amp requests a model:
 
 **Solutions:**
 1. Verify `~/.local/share/amp/secrets.json` has the `apiKey` field (see Step 3)
-2. Restart VibeProxy to reload the secrets file
+2. Restart EllProxy to reload the secrets file
 3. Check permissions: `ls -la ~/.local/share/amp/secrets.json` (should be readable)
 
 ### "Unable to connect"
@@ -176,7 +176,7 @@ When Amp requests a model:
 **Problem:** Amp can't reach the proxy.
 
 **Solutions:**
-1. Verify VibeProxy is running (check menu bar)
+1. Verify EllProxy is running (check menu bar)
 2. Verify `AMP_URL` is set: `echo $AMP_URL` (should show `http://localhost:8317`)
 3. Test the proxy: `curl http://localhost:8317/api/user` (should redirect or return HTML)
 
@@ -185,7 +185,7 @@ When Amp requests a model:
 **Problem:** Path rewriting isn't working.
 
 **Solutions:**
-1. Make sure you're using the latest VibeProxy build
+1. Make sure you're using the latest EllProxy build
 2. Manually add `/api/` to the URL in the browser if needed
 
 ### Expired OAuth Tokens
@@ -199,9 +199,9 @@ ls -la ~/.cli-proxy-api/*.json
 # Remove expired token (example)
 rm ~/.cli-proxy-api/ran@example.com-*.json
 
-# Restart VibeProxy
+# Restart EllProxy
 killall CLIProxyMenuBar
-# Then launch VibeProxy again
+# Then launch EllProxy again
 ```
 
 ## Authenticating Local Providers (Optional)
@@ -210,26 +210,26 @@ To use your own subscriptions instead of Amp credits for specific models:
 
 ### Google/Gemini Models
 ```bash
-/Applications/VibeProxy.app/Contents/Resources/cli-proxy-api \
-  -config /Applications/VibeProxy.app/Contents/Resources/config.yaml \
+/Applications/EllProxy.app/Contents/Resources/cli-proxy-api \
+  -config /Applications/EllProxy.app/Contents/Resources/config.yaml \
   -login
 ```
 
 ### ChatGPT/OpenAI Models
 ```bash
-/Applications/VibeProxy.app/Contents/Resources/cli-proxy-api \
-  -config /Applications/VibeProxy.app/Contents/Resources/config.yaml \
+/Applications/EllProxy.app/Contents/Resources/cli-proxy-api \
+  -config /Applications/EllProxy.app/Contents/Resources/config.yaml \
   -codex-login
 ```
 
 ### Claude/Anthropic Models
 ```bash
-/Applications/VibeProxy.app/Contents/Resources/cli-proxy-api \
-  -config /Applications/VibeProxy.app/Contents/Resources/config.yaml \
+/Applications/EllProxy.app/Contents/Resources/cli-proxy-api \
+  -config /Applications/EllProxy.app/Contents/Resources/config.yaml \
   -claude-login
 ```
 
-After authenticating, restart VibeProxy. Those models will now use your subscriptions instead of Amp credits.
+After authenticating, restart EllProxy. Those models will now use your subscriptions instead of Amp credits.
 
 ## Benefits
 

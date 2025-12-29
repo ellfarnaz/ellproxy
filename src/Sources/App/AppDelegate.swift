@@ -15,6 +15,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     private var notificationPermissionGranted = false
     private let updaterController: SPUStandardUpdaterController
     private var modelRouterCancellable: AnyCancellable?
+    var modelSearchWindow: NSWindow?
     
     override init() {
         self.updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
@@ -24,6 +25,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Setup menu bar
         setupMenuBar()
+        
+        // Setup Edit menu for Cmd+V, Cmd+C, Cmd+X support
+        setupEditMenu()
 
         // Initialize managers
         serverManager = ServerManager()
@@ -54,6 +58,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             name: .serverStatusChanged,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleFallbackNotification(_:)),
+            name: .fallbackTriggered,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRoutingNotification(_:)),
+            name: .init("routingNotification"),
+            object: nil
+        )
+
     }
     
     private func preloadIcons() {
@@ -89,7 +108,80 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             }
         }
     }
+    
+    // MARK: - Notification Helper
+    
+    private func sendNotification(title: String, body: String, sound: Bool = false) {
+        guard notificationPermissionGranted else {
+            NSLog("[Notifications] Skipping notification (permission not granted): %@", title)
+            return
+        }
+        
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        if sound {
+            content.sound = .default
+        }
+        
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil // Immediate delivery
+        )
+        
+        notificationCenter.add(request) { error in
+            if let error = error {
+                NSLog("[Notifications] Failed to send notification: %@", error.localizedDescription)
+            }
+        }
+    }
 
+    // MARK: - Edit Menu for Cmd+V Support
+    
+    /// Setup standard Edit menu to enable Cmd+V, Cmd+C, Cmd+X in text fields
+    private func setupEditMenu() {
+        // Get or create the main menu
+        let mainMenu = NSApp.mainMenu ?? NSMenu()
+        NSApp.mainMenu = mainMenu
+        
+        // Create Edit menu
+        let editMenu = NSMenu(title: "Edit")
+        
+        // Add standard editing actions
+        let undoItem = NSMenuItem(title: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(undoItem)
+        
+        let redoItem = NSMenuItem(title: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        redoItem.keyEquivalentModifierMask = [.command, .shift]
+        editMenu.addItem(redoItem)
+        
+        editMenu.addItem(NSMenuItem.separator())
+        
+        let cutItem = NSMenuItem(title: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(cutItem)
+        
+        let copyItem = NSMenuItem(title: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(copyItem)
+        
+        let pasteItem = NSMenuItem(title: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(pasteItem)
+        
+        editMenu.addItem(NSMenuItem.separator())
+        
+        let selectAllItem = NSMenuItem(title: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(selectAllItem)
+        
+        // Create Edit menu item and add submenu
+        let editMenuItem = NSMenuItem(title: "Edit", action: nil, keyEquivalent: "")
+        editMenuItem.submenu = editMenu
+        
+        // Add to main menu (after any existing items)
+        mainMenu.addItem(editMenuItem)
+        
+        NSLog("[AppDelegate] Edit menu added for Cmd+V support")
+    }
+    
     func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
@@ -97,7 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             if let icon = IconCatalog.shared.image(named: "icon-inactive.png", resizedTo: NSSize(width: 18, height: 18), template: true) {
                 button.image = icon
             } else {
-                let fallback = NSImage(systemSymbolName: "network.slash", accessibilityDescription: "VibeProxy")
+                let fallback = NSImage(systemSymbolName: "network.slash", accessibilityDescription: "EllProxy")
                 fallback?.isTemplate = true
                 button.image = fallback
                 NSLog("[MenuBar] Failed to load inactive icon from bundle; using fallback system icon")
@@ -110,12 +202,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         menu.addItem(NSMenuItem(title: "Server: Stopped", action: nil, keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
         
-        // Active Model Display
-        let activeModelItem = NSMenuItem(title: "Model: None", action: nil, keyEquivalent: "")
-        activeModelItem.tag = 200
-        menu.addItem(activeModelItem)
+        // 🎯 Active Models Section
+        let activeModelsHeader = NSMenuItem(title: "🎯 ACTIVE MODELS", action: nil, keyEquivalent: "")
+        activeModelsHeader.tag = 204
+        activeModelsHeader.isEnabled = false
+        menu.addItem(activeModelsHeader)
         
-        // Models Submenu
+        // Default Model (clickable)
+        let defaultModelItem = NSMenuItem(title: "⚡ Default: None", action: #selector(quickSwitchDefault), keyEquivalent: "")
+        defaultModelItem.tag = 205
+        menu.addItem(defaultModelItem)
+        
+        // Thinking Model (clickable)
+        let thinkingModelItem = NSMenuItem(title: "🧠 Thinking: None", action: #selector(quickSwitchThinking), keyEquivalent: "")
+        thinkingModelItem.tag = 206
+        menu.addItem(thinkingModelItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Quick Routing Toggle
+        let routingToggleItem = NSMenuItem(title: "Routing: Enabled", action: #selector(toggleRouting), keyEquivalent: "r")
+        routingToggleItem.tag = 203
+        menu.addItem(routingToggleItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Models Submenu REMOVED as per user request
+        /*
         let modelsItem = NSMenuItem(title: "Switch Model", action: nil, keyEquivalent: "")
         modelsItem.tag = 201
         let modelsSubmenu = NSMenu()
@@ -123,6 +236,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         menu.addItem(modelsItem)
         
         menu.addItem(NSMenuItem.separator())
+        */
 
         // Main Actions
         menu.addItem(NSMenuItem(title: "Open Settings", action: #selector(openSettings), keyEquivalent: "s"))
@@ -155,77 +269,74 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
 
         statusItem.menu = menu
         
+        // Listen for menu bar update notifications from Search window
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("UpdateMenuBar"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateModelMenu()
+            self?.updateMenuBarStatus()
+        }
+        
         // Initial model menu update
         updateModelMenu()
     }
     
     /// Updates the model submenu with available models grouped by provider
     func updateModelMenu() {
-        guard let modelsItem = menu.item(withTag: 201),
-              let submenu = modelsItem.submenu else { return }
-        
         let router = ModelRouter.shared
         
-        // Update active model display
-        if let activeModelItem = menu.item(withTag: 200) {
-            if router.routingEnabled, let activeModel = router.activeModel {
-                activeModelItem.title = "Model: \(activeModel.name)"
+        // Update Active Models display (tags 205, 206)
+        if let defaultItem = menu.item(withTag: 205) {
+            if let activeModel = router.activeModel {
+                defaultItem.title = "⚡ Default: \(activeModel.name)"
             } else {
-                activeModelItem.title = "Model Routing: Disabled"
+                defaultItem.title = "⚡ Default: None"
             }
         }
         
-        // Clear existing items
-        submenu.removeAllItems()
-        
-        // Add routing toggle
-        let routingItem = NSMenuItem(title: router.routingEnabled ? "✓ Routing Enabled" : "Enable Routing", action: #selector(toggleRouting), keyEquivalent: "")
-        submenu.addItem(routingItem)
-        submenu.addItem(NSMenuItem.separator())
-        
-        // Add models by provider
-        for provider in router.providers {
-            let providerItem = NSMenuItem(title: router.providerDisplayName(provider), action: nil, keyEquivalent: "")
-            providerItem.isEnabled = false
-            
-            // Add provider icon if available
-            if let icon = IconCatalog.shared.image(named: router.providerIconName(provider), resizedTo: NSSize(width: 14, height: 14), template: true) {
-                providerItem.image = icon
+        if let thinkingItem = menu.item(withTag: 206) {
+            if let thinkingModel = router.defaultThinkingModel {
+                thinkingItem.title = "🧠 Thinking: \(thinkingModel.name)"
+            } else {
+                thinkingItem.title = "🧠 Thinking: Not Set"
             }
-            
-            submenu.addItem(providerItem)
-            
-            // Add models for this provider
-            if let models = router.modelsByProvider[provider] {
-                for model in models {
-                    let modelItem = NSMenuItem(title: model.name, action: #selector(selectModel(_:)), keyEquivalent: "")
-                    modelItem.representedObject = model.id
-                    modelItem.indentationLevel = 1
-                    
-                    // Mark active model
-                    if model.id == router.activeModelId && router.routingEnabled {
-                        modelItem.state = .on
-                    }
-                    
-                    submenu.addItem(modelItem)
-                }
-            }
-            
-            submenu.addItem(NSMenuItem.separator())
         }
         
-        // Remove trailing separator if present
-        if let lastItem = submenu.items.last, lastItem.isSeparatorItem {
-            submenu.removeItem(lastItem)
+        // Update routing toggle display (tag 203)
+        if let routingItem = menu.item(withTag: 203) {
+            if router.routingEnabled {
+                routingItem.title = "Routing: ON (Smart)"
+                routingItem.state = .on
+            } else {
+                routingItem.title = "Routing: OFF (Panic)"
+                routingItem.state = .off
+            }
         }
+        
+        // Submenu update logic removed since the item is removed
+    }
+    
+    // MARK: - Menu Actions
+    
+    @objc func quickSwitchDefault() {
+        // Opens Search Models window for Default model
+        openModelSearchInternal(mode: .defaultModel)
+    }
+    
+    @objc func quickSwitchThinking() {
+        // Opens Search Models window for Thinking model
+        openModelSearchInternal(mode: .thinkingModel)
     }
     
     @objc func toggleRouting() {
         ModelRouter.shared.routingEnabled.toggle()
         updateModelMenu()
+        updateMenuBarStatus()
         
         let status = ModelRouter.shared.routingEnabled ? "enabled" : "disabled"
-        showNotification(title: "Model Routing", body: "Routing is now \(status)")
+        sendNotification(title: "Model Routing", body: "Routing is now \(status)")
     }
     
     @objc func selectModel(_ sender: NSMenuItem) {
@@ -233,11 +344,46 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         
         ModelRouter.shared.activeModelId = modelId
         ModelRouter.shared.routingEnabled = true
+        ModelRouter.shared.addToRecentModels(modelId)  // Track recent
         updateModelMenu()
         
         if let model = ModelRouter.shared.activeModel {
-            showNotification(title: "Model Selected", body: model.name)
+            sendNotification(title: "Model Selected", body: model.name)
         }
+    }
+    
+    @objc func selectThinkingModel(_ sender: NSMenuItem) {
+        guard let modelId = sender.representedObject as? String else { return }
+        
+        ModelRouter.shared.defaultThinkingModelId = modelId
+        ModelRouter.shared.addToRecentModels(modelId)  // Track recent
+        updateModelMenu()
+        
+        if let model = ModelRouter.shared.defaultThinkingModel {
+            sendNotification(title: "Thinking Model Selected", body: model.name)
+        }
+    }
+    
+    @objc func openModelSearch() {
+        openModelSearchInternal(mode: .defaultModel)
+    }
+    
+    func openModelSearchInternal(mode: ModelSelectionMode) {
+        // Always create new window to ensure mode is applied correctly
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 450, height: 500),
+            styleMask: [.titled, .closable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Search Models"  // Generic title since mode selector is inside
+        window.center()
+        window.isReleasedWhenClosed = false
+        window.contentView = NSHostingView(rootView: ModelSearchWindowView(mode: mode))
+        modelSearchWindow = window
+        
+        modelSearchWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc func openSettings() {
@@ -255,7 +401,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             backing: .buffered,
             defer: false
         )
-        window.title = "VibeProxy"
+        window.title = "EllProxy"
         window.center()
         window.delegate = self
         window.isReleasedWhenClosed = false
@@ -297,11 +443,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
                     if success {
                         self?.updateMenuBarStatus()
                         // User always connects to 8317 (thinking proxy)
-                        self?.showNotification(title: "Server Started", body: "VibeProxy is now running")
+                        self?.sendNotification(title: "Server Started", body: "EllProxy is now running on port 8317", sound: true)
                     } else {
                         // Backend failed - stop the proxy to keep state consistent
                         self?.thinkingProxy.stop()
-                        self?.showNotification(title: "Server Failed", body: "Could not start backend server on port 8318")
+                        self?.sendNotification(title: "Server Failed", body: "Could not start backend server on port 8318", sound: true)
                     }
                 }
             }
@@ -313,7 +459,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             DispatchQueue.main.async { [weak self] in
                 // Clean up partially initialized proxy
                 self?.thinkingProxy.stop()
-                self?.showNotification(title: "Server Failed", body: "Could not start thinking proxy on port 8317 (timeout)")
+                self?.sendNotification(title: "Server Failed", body: "Could not start thinking proxy on port 8317 (timeout)", sound: true)
             }
             return
         }
@@ -333,13 +479,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         serverManager.stop()
         
         updateMenuBarStatus()
+        sendNotification(title: "Server Stopped", body: "EllProxy server has been stopped")
     }
 
     @objc func copyServerURL() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString("http://localhost:\(thinkingProxy.proxyPort)", forType: .string)
-        showNotification(title: "Copied", body: "Server URL copied to clipboard")
+        sendNotification(title: "Copied", body: "Server URL copied to clipboard")
+    }
+
+    @objc func handleFallbackNotification(_ notification: Notification) {
+        if let message = notification.userInfo?["message"] as? String {
+            sendNotification(title: "Model Fallback", body: message, sound: true)
+        }
+    }
+
+    
+    @objc func handleRoutingNotification(_ notification: Notification) {
+        if let message = notification.userInfo?["message"] as? String {
+           // Use showNotification for cleaner banner
+           showNotification(title: "EllProxy", body: message)
+        }
     }
 
     @objc func updateMenuBarStatus() {
@@ -355,6 +516,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
 
         if let copyURLItem = menu.item(withTag: 102) {
             copyURLItem.isEnabled = serverManager.isRunning
+        }
+        
+        // Update routing toggle
+        if let routingToggleItem = menu.item(withTag: 203) {
+            let enabled = ModelRouter.shared.routingEnabled
+            routingToggleItem.title = enabled ? "✓ Routing: ON (Smart)" : "✗ Routing: OFF (Force)"
         }
 
         // Update icon based on server status
@@ -381,7 +548,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         content.sound = .default
         
         let request = UNNotificationRequest(
-            identifier: "io.automaze.vibeproxy.\(UUID().uuidString)",
+            identifier: "io.automaze.ellproxy.\(UUID().uuidString)",
             content: content,
             trigger: nil
         )

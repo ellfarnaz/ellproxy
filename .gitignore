@@ -32,3 +32,12 @@ src/Sources/Resources/AppIcon.iconset/
 test-notarization.sh
 .vscode/settings.json
 proxy-model/
+# AI Agent Metadata & Dev Tools
+.agent/
+.claude/
+.gemini/
+.antigravity/
+scripts/dev-tools/
+
+# Trae-Proxy certificates (generated locally, contains private keys)
+services/trae-proxy/ca/

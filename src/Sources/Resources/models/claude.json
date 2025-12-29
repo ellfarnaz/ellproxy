@@ -1,0 +1,26 @@
+{
+  "provider": "claude",
+  "models": [
+    {
+      "id": "claude-opus-4",
+      "name": "Claude Opus 4",
+      "provider": "claude",
+      "upstream_model": "claude-opus-4-20250514",
+      "supports_thinking": true
+    },
+    {
+      "id": "claude-sonnet-4",
+      "name": "Claude Sonnet 4",
+      "provider": "claude",
+      "upstream_model": "claude-sonnet-4-20250514",
+      "supports_thinking": true
+    },
+    {
+      "id": "claude-sonnet-4-5-20250929",
+      "name": "Claude Sonnet 4.5 (2025-09-29)",
+      "provider": "claude",
+      "upstream_model": "gemini-claude-sonnet-4-5",
+      "supports_thinking": true
+    }
+  ]
+}

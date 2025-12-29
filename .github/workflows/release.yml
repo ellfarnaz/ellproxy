@@ -3,8 +3,8 @@ name: Build and Release (Code Signed)
 on:
   push:
     tags:
-      - 'v*'  # Triggers on version tags like v1.0.0
-  workflow_dispatch:  # Allows manual trigger
+      - "v*" # Triggers on version tags like v1.0.0
+  workflow_dispatch: # Allows manual trigger
 
 permissions:
   contents: write
@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-signed:
     name: Build and Sign macOS App
-    runs-on: macos-14  # macOS Sonoma on Apple Silicon (M1)
+    runs-on: macos-14 # macOS Sonoma on Apple Silicon (M1)
 
     steps:
       - name: Checkout code
@@ -62,28 +62,28 @@ jobs:
       # Verify the signing
       - name: Verify Code Signature
         run: |
-          codesign --verify --deep --strict --verbose=2 VibeProxy.app
-          codesign -dv --verbose=4 VibeProxy.app
-          spctl -a -vvv -t install VibeProxy.app || echo "⚠️ Gatekeeper check failed (expected without notarization)"
+          codesign --verify --deep --strict --verbose=2 EllProxy.app
+          codesign -dv --verbose=4 EllProxy.app
+          spctl -a -vvv -t install EllProxy.app || echo "⚠️ Gatekeeper check failed (expected without notarization)"
 
       # Notarize the app for seamless installation (no Gatekeeper warnings)
       - name: Notarize App
         run: |
           # Create a ZIP for notarization
-          ditto -c -k --sequesterRsrc --keepParent "VibeProxy.app" "VibeProxy-notarize.zip"
-          
+          ditto -c -k --sequesterRsrc --keepParent "EllProxy.app" "EllProxy-notarize.zip"
+
           # Submit for notarization and capture the submission ID
           echo "Submitting app for notarization..."
-          SUBMIT_OUTPUT=$(xcrun notarytool submit "VibeProxy-notarize.zip" \
+          SUBMIT_OUTPUT=$(xcrun notarytool submit "EllProxy-notarize.zip" \
             --apple-id "${{ secrets.APPLE_ID }}" \
             --team-id "${{ secrets.APPLE_TEAM_ID }}" \
             --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" \
             --wait --output-format json)
-          
+
           echo "$SUBMIT_OUTPUT"
           SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | jq -r '.id')
           STATUS=$(echo "$SUBMIT_OUTPUT" | jq -r '.status')
-          
+
           # If it failed, get the detailed log
           if [ "$STATUS" != "Accepted" ]; then
             echo "❌ Notarization failed with status: $STATUS"
@@ -94,15 +94,15 @@ jobs:
               --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
             exit 1
           fi
-          
+
           # Staple the notarization ticket
           echo "✅ Notarization succeeded! Stapling ticket..."
-          xcrun stapler staple "VibeProxy.app"
-          xcrun stapler validate "VibeProxy.app"
+          xcrun stapler staple "EllProxy.app"
+          xcrun stapler validate "EllProxy.app"
           echo "✅ App successfully notarized and stapled!"
-          
+
           # Remove the notarization ZIP
-          rm "VibeProxy-notarize.zip"
+          rm "EllProxy-notarize.zip"
 
       - name: Create DMG
         run: |
@@ -111,34 +111,34 @@ jobs:
 
           # Create DMG
           create-dmg \
-            --volname "VibeProxy" \
+            --volname "EllProxy" \
             --volicon "icon.png" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
-            --icon "VibeProxy.app" 175 120 \
-            --hide-extension "VibeProxy.app" \
+            --icon "EllProxy.app" 175 120 \
+            --hide-extension "EllProxy.app" \
             --app-drop-link 425 120 \
             --codesign "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION }}" \
-            "VibeProxy.dmg" \
-            "VibeProxy.app" || true
+            "EllProxy.dmg" \
+            "EllProxy.app" || true
 
           # Verify DMG was created and signed
-          if [ -f "VibeProxy.dmg" ]; then
+          if [ -f "EllProxy.dmg" ]; then
             echo "✅ DMG created successfully"
-            codesign -dv "VibeProxy.dmg" || echo "⚠️ DMG not signed (non-fatal)"
+            codesign -dv "EllProxy.dmg" || echo "⚠️ DMG not signed (non-fatal)"
           fi
 
       - name: Create ZIP archive
         run: |
           # ZIP is more reliable for GitHub releases
-          ditto -c -k --sequesterRsrc --keepParent "VibeProxy.app" "VibeProxy.zip"
+          ditto -c -k --sequesterRsrc --keepParent "EllProxy.app" "EllProxy.zip"
 
       - name: Calculate checksums
         run: |
-          shasum -a 256 VibeProxy.zip > VibeProxy.zip.sha256
-          if [ -f "VibeProxy.dmg" ]; then
-            shasum -a 256 VibeProxy.dmg > VibeProxy.dmg.sha256
+          shasum -a 256 EllProxy.zip > EllProxy.zip.sha256
+          if [ -f "EllProxy.dmg" ]; then
+            shasum -a 256 EllProxy.dmg > EllProxy.dmg.sha256
           fi
 
       - name: Sign update for Sparkle
@@ -148,22 +148,22 @@ jobs:
         run: |
           # Find the Sparkle sign_update tool
           SIGN_UPDATE=$(find src/.build -name "sign_update" -type f | grep -v old_dsa | head -1)
-          
+
           if [ -z "$SIGN_UPDATE" ]; then
             echo "Error: sign_update not found"
             find src/.build -name "sign_update" -type f
             exit 1
           fi
-          
+
           echo "Using sign_update: $SIGN_UPDATE"
-          
+
           # Sign the ZIP file
-          SIGNATURE=$(echo "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" VibeProxy.zip --ed-key-file -)
-          
+          SIGNATURE=$(echo "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" EllProxy.zip --ed-key-file -)
+
           # Extract signature and length
           ED_SIGNATURE=$(echo "$SIGNATURE" | grep -o 'sparkle:edSignature="[^"]*"' | sed 's/sparkle:edSignature="//;s/"$//')
-          LENGTH=$(stat -f%z VibeProxy.zip)
-          
+          LENGTH=$(stat -f%z EllProxy.zip)
+
           echo "ed_signature=$ED_SIGNATURE" >> $GITHUB_OUTPUT
           echo "length=$LENGTH" >> $GITHUB_OUTPUT
           echo "Sparkle signature generated"
@@ -176,7 +176,7 @@ jobs:
           LENGTH: ${{ steps.sparkle_sign.outputs.length }}
         run: |
           TODAY=$(date -u +"%a, %d %b %Y %H:%M:%S +0000")
-          
+
           # Create new item entry in a temp file
           cat > /tmp/new_item.xml << ENDOFITEM
               <item>
@@ -185,17 +185,17 @@ jobs:
                 <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
                 <pubDate>${TODAY}</pubDate>
-                <enclosure url="https://github.com/automazeio/vibeproxy/releases/download/v${VERSION}/VibeProxy.zip"
+                <enclosure url="https://github.com/automazeio/vibeproxy/releases/download/v${VERSION}/EllProxy.zip"
                            type="application/octet-stream"
                            sparkle:edSignature="${ED_SIGNATURE}"
                            length="${LENGTH}"/>
               </item>
           ENDOFITEM
-          
+
           # Insert new item after <language> line
           sed -i.bak '/<language>en<\/language>/r /tmp/new_item.xml' appcast.xml
           rm -f appcast.xml.bak /tmp/new_item.xml
-          
+
           echo "Updated appcast.xml with version ${VERSION}"
           head -30 appcast.xml
 
@@ -212,30 +212,30 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            VibeProxy.zip
-            VibeProxy.zip.sha256
-            VibeProxy.dmg
-            VibeProxy.dmg.sha256
+            EllProxy.zip
+            EllProxy.zip.sha256
+            EllProxy.dmg
+            EllProxy.dmg.sha256
           draft: false
           prerelease: false
           generate_release_notes: true
           body: |
-            ## VibeProxy ${{ steps.get_version.outputs.VERSION }}
+            ## EllProxy ${{ steps.get_version.outputs.VERSION }}
 
             ### Installation
 
             **Option 1: ZIP (Recommended)**
-            1. Download `VibeProxy.zip`
+            1. Download `EllProxy.zip`
             2. Extract the file
-            3. Drag `VibeProxy.app` to your `/Applications` folder
+            3. Drag `EllProxy.app` to your `/Applications` folder
             4. Double-click to launch
 
             **Option 2: DMG**
-            1. Download `VibeProxy.dmg`
+            1. Download `EllProxy.dmg`
             2. Double-click to mount
-            3. Drag `VibeProxy.app` to the Applications folder
+            3. Drag `EllProxy.app` to the Applications folder
             4. Eject the DMG
-            5. Launch VibeProxy from Applications
+            5. Launch EllProxy from Applications
 
             ### What's New
 
@@ -247,7 +247,7 @@ jobs:
 
             To verify the download:
             ```bash
-            shasum -a 256 -c VibeProxy.zip.sha256
+            shasum -a 256 -c EllProxy.zip.sha256
             ```
 
             ---
@@ -261,8 +261,8 @@ jobs:
       - name: Upload artifact (for manual downloads)
         uses: actions/upload-artifact@v4
         with:
-          name: VibeProxy-macOS-Signed
+          name: EllProxy-macOS-Signed
           path: |
-            VibeProxy.zip
-            VibeProxy.dmg
+            EllProxy.zip
+            EllProxy.dmg
           retention-days: 30
