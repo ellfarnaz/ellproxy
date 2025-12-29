@@ -1,8 +1,8 @@
 # EllProxy User Guide
 
-<p align="center">
-  <img src="icon.png" width="128" height="128" alt="EllProxy Icon">
-</p>
+<div align="center">
+  <img src="header.png" width="100%" alt="EllProxy Banner" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+</div>
 
 Welcome to EllProxy! This guide will help you understand and use all features of the application.
 
@@ -438,7 +438,32 @@ Both refer to the same model discovery process.
 
 ---
 
-## Gallery
+## Interface Guide
 
-![Additional View 1](docs/screenshots/view_1.png)
-![Additional View 2](docs/screenshots/view_2.png)
+### 1. Smart Model Routing
+![Smart Routing Settings](docs/screenshots/settings_v2.png)
+**What it does:**
+- **Default / Fallback Models**: Configure your primary high-speed model and a backup premium model.
+- **Thinking Config**: Set specific models for reasoning tasks (e.g., `ellproxy-thinking`).
+- **Reasoning Effort**: Adjust the depth of thought (Low/Medium/High) for supported models.
+
+### 2. Model Management
+![Model List](docs/screenshots/available-models.png)
+**What it does:**
+- **Unified List**: Shows all models from Google, Anthropic, and OpenAI in one place.
+- **One-Click Sync**: "Sync Models" button fetches the latest pricing and capabilities from providers.
+- **Stats**: Displays context window size and multimodal capabilities (Vision/Thinking) for each model.
+
+### 3. Quick Integration
+![Quick Setup Tab](docs/screenshots/view_2.png)
+**What it does:**
+- **One-Click Config**: Instantly copy configuration snippets for popular tools.
+- **Supported Tools**: Factory Droids, AmpCode, Cursor, and standard OpenAI SDKs.
+- **API Details**: clearly shows your local proxy URL (e.g., `http://localhost:8317/v1`) and dummy key.
+
+### 4. Advanced Details
+![Advanced View](docs/screenshots/view_3.png)
+**What it does:**
+- **JSON Output**: View the raw JSON response for debugging.
+- **Token Usage**: Monitor token consumption (Prompt/Completion/Reasoning) for every request.
+- **Latency Tracking**: See the exact time-to-first-token (TTFT) and total generation time.
