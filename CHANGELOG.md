@@ -1,12 +1,12 @@
 # Changelog
 
 > [!NOTE]
-> **This is a fork of [VibeProxy](https://github.com/automazeio/vibeproxy)**
+> **Forked from [VibeProxy v1.8.23](https://github.com/automazeio/vibeproxy)**
 > 
-> EllProxy maintains the core functionality while adding custom features and improvements.
-> Changes specific to EllProxy are documented below. For the original VibeProxy history, see the upstream repository.
+> This CHANGELOG documents **EllProxy-specific changes and enhancements** only.
+> For the original VibeProxy v1.8.23 features and history, see the [upstream repository](https://github.com/automazeio/vibeproxy/releases/tag/v1.8.23).
 
-All notable changes to EllProxy will be documented in this file.
+All notable changes to **EllProxy** are documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -14,65 +14,283 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-### 🚀 EllProxy Custom Features
+### 🎯 EllProxy vs VibeProxy v1.8.23 - What's Different?
 
-This initial release focuses on project organization and release automation:
+EllProxy is a complete architectural overhaul of VibeProxy v1.8.23. Here's what makes it unique:
 
-#### Added
-- **Project Restructuring** - Organized codebase for better maintainability
-  - Moved `Trae-Proxy` service to `services/trae-proxy/`
-  - Consolidated all test and run scripts into `scripts/` directory
-  - Isolated development tools to `scripts/dev-tools/` (git ignored)
-  
-- **Automated Binary Updates** - Created `scripts/update_binary.sh`
-  - Automatically fetches latest CLIProxyAPIPlus binary from upstream
-  - Integrated into release preparation workflow
-  - Ensures builds always use the latest compatible version
+### 🏗️ **Modular Architecture** (NEW)
 
-- **Release Automation** - New `clean_and_prepare.sh` script
-  - Automated cleanup of development artifacts
-  - Security audit for sensitive keys in config files
-  - Auto-update of CLIProxyAPIPlus binary before build
-  - Fresh production build generation
-  
-- **CI/CD Pipeline** - GitHub Actions workflows for unsigned releases
-  - Auto-detection of upstream CLIProxyAPIPlus updates
-  - Automatic PR creation and merging for binary updates
-  - Automated version tagging and CHANGELOG updates
-  - Unsigned DMG and ZIP generation (no Apple Developer account required)
-  
-#### Changed
-- **UI Terminology** - Rebranded "Testing" → "Sync" throughout the application
-  - Updated all UI labels in `ModelSyncService.swift`
-  - Modified macOS notification messages
-  - Renamed `test_thinking_support1.sh` → `sync_thinking_support.sh`
-  
-- **Enhanced Notifications** - Provider names now included in sync notifications
-  - Format: "Syncing [Provider]: [Model]"
-  - Added `X-EllProxy-Provider` header to sync test requests
-  - Improved user feedback during model synchronization
+**VibeProxy v1.8.23:**
+```
+src/Sources/
+├── AppDelegate.swift (12KB monolithic)
+├── ServerManager.swift (20KB)
+├── ThinkingProxy.swift (33KB)
+├── SettingsView.swift (23KB)
+└── [6 other files]
+```
 
-#### Fixed
-- **Build System** - Updated all file paths for restructured project
-  - `create-app-bundle.sh` now uses `services/trae-proxy/` path
-  - `ModelSyncService.swift` references `scripts/sync_thinking_support.sh`
-  - `.gitignore` excludes AI agent metadata folders
+**EllProxy:**
+```
+src/Sources/
+├── App/ (Application lifecycle)
+├── Services/ (6 service modules)
+├── Views/ (5 view components)
+├── ThinkingProxy/ (9 modular files)
+├── QuickSetup/ (10 setup modules)
+├── Models/ (Data models)
+├── Config/ (Configuration)
+├── ServerManagement/ (2 management modules)
+└── Resources/
+    └── models/ (Provider model JSONs) ← NEW
+```
+
+#### Changes:
+- **50+ files vs 10 files** - Better separation of concerns
+- **12 modules** - App, Services, Views, ThinkingProxy, QuickSetup, Models, Config, ServerManagement, Settings, Resources + 2 more
+- **10KB average file size** vs 20-30KB monolithic files
+- **Easier navigation** - Logical component grouping
+
+---
+
+### 🎯 **Model Management System** (FEATURE NEW TO ELLPROXY)
+
+**VibeProxy v1.8.23:** No model management interface
+
+**EllProxy Features:**
+- ✅ **ModelSyncService.swift** - Automatic model discovery from providers
+- ✅ **DiscoveredModelsStore.swift** - Persistent model storage
+- ✅ **ModelRouter.swift** - Routing logic for model requests
+- ✅ **ModelsView.swift** - Dedicated UI for model management
+- ✅ **Provider-based JSON files** - `claude.json`, `google.json`, `copilot.json`, etc.
+- ✅ **Fallback Model Selection** - Configure backup models
+- ✅ **Default Model Configuration** - Set defaults per provider
+- ✅ **Model Search Interface** - Find models quickly
+- ✅ **Add Model Manually** - `AddModelView.swift` for custom additions
+
+#### Implementation Details:
+```swift
+// NEW: Resources/models/
+models/
+├── antigravity.json
+├── claude.json
+├── codex.json
+├── copilot.json
+├── google.json
+├── iflow.json
+└── qwen.json
+```
+
+---
+
+### 🔧 **Enhanced ThinkingProxy** (MAJOR REFACTOR)
+
+**VibeProxy v1.8.23:** Single 33KB `ThinkingProxy.swift` file
+
+**EllProxy Modular Structure:**
+```
+ThinkingProxy/
+├── Core/
+│   ├── ThinkingConfig.swift         # Configuration
+│   ├── ThinkingProxyProtocols.swift # Protocols
+│   └── ThinkingProxyTypes.swift     # Type definitions
+├── Processing/
+│   └── ThinkingProcessor.swift      # Parameter processing
+├── ThinkingProxy.swift              # Main implementation (streamlined)
+├── ThinkingProxy+Anthropic.swift    # Claude-specific logic
+├── ThinkingProxy+Connection.swift   # Connection management
+├── ThinkingProxy+DeepSeekFixes.swift # DeepSeek compatibility
+├── ThinkingProxy+Forwarding.swift   # Request forwarding
+├── ThinkingProxy+ImageNormalization.swift # Image handling
+├── ThinkingProxy+PayloadFixes.swift # Payload corrections
+├── ThinkingProxy+Response.swift     # Response handling
+├── ThinkingProxy+ThinkingMode.swift # Thinking mode logic
+└── ReasoningCache.swift             # Response caching ← NEW
+```
+
+#### Benefits:
+- **9 focused files** vs 1 monolithic file
+- **Reasoning cache** for performance
+- **Provider-specific modules** for better compatibility
+- **Extension-based organization** - Easy to add new providers
+- **Testable components** - Each module can be tested independently
+
+---
+
+### 🚀 **Automated Release System** (FEATURE NEW TO ELLPROXY)
+
+**VibeProxy v1.8.23:** Manual builds with Apple Developer account required
+
+**EllProxy Automation:**
+
+#### New Scripts:
+1. **`clean_and_prepare.sh`** (NEW)
+   - Cleans development artifacts
+   - Audits `config.yaml` for sensitive keys
+   - Auto-updates CLIProxyAPIPlus binary
+   - Triggers fresh production build
+
+2. **`scripts/update_binary.sh`** (NEW)
+   - Fetches latest CLIProxyAPIPlus from GitHub
+   - Validates darwin_arm64 architecture
+   - Auto-installs to `src/Sources/Resources/`
+
+3. **`scripts/sync_thinking_support.sh`** (RENAMED)
+   - Previously: `test_thinking_support1.sh`
+   - Optimized for in-app model sync (no summary table)
+
+#### CI/CD Workflows:
+- **`.github/workflows/update-cliproxyapi.yml`** - Auto-detect upstream updates
+- **`.github/workflows/auto-release.yml`** - Merge PRs and bump versions
+- **`.github/workflows/release.yml`** (MODIFIED) - Unsigned builds for users without Apple Developer accounts
+
+#### Changes to `release.yml`:
+```yaml
+# REMOVED (requires Apple Developer):
+- Code signing with Developer ID
+- Notarization by Apple
+- Sparkle signature generation
+
+# KEPT (works without account):
+- Build EllProxy.app
+- Create EllProxy.zip  
+- Create EllProxy.dmg
+- Upload to GitHub Releases
+```
+
+---
+
+### 🎨 **UI/UX Improvements**
+
+#### Sync Terminology Rebranding
+**VibeProxy v1.8.23:** "Testing" terminology  
+**EllProxy:** "Sync" terminology throughout
+
+**Files Changed:**
+- `ModelSyncService.swift`:
+  - UI labels: "Testing" → "Sync"
+  - Status messages consistently use "Sync"
+  
+#### Enhanced Notifications
+**VibeProxy v1.8.23:** Generic notifications  
+**EllProxy:** Provider context included
+
+**Example:**
+```
+VibeProxy: "Testing model: gemini-1.5-pro"
+EllProxy:  "Syncing AntiGravity: gemini-1.5-pro"
+```
+
+**Implementation:**
+- Added `X-EllProxy-Provider` header to sync requests
+- Modified `ThinkingProxy+ThinkingMode.swift` to extract provider
+- Updated notification messages with provider names
+
+---
+
+### 🛠️ **Project Organization**
+
+#### New Directory Structure:
+
+**Services Subfolder (NEW):**
+```
+services/
+└── trae-proxy/
+    ├── trae_proxy.py
+    ├── config.yaml
+    ├── generate_certs.py
+    └── requirements.txt
+```
+
+**Scripts Consolidation (NEW):**
+```
+scripts/
+├── sync_thinking_support.sh    # For in-app sync
+├── update_binary.sh            # Binary auto-update
+└── dev-tools/                  # Git ignored
+    ├── create-release.sh
+    ├── test_*.sh              # 7 test scripts
+    └── run_*.sh               # Development runners
+```
+
+**VibeProxy v1.8.23:** All scripts in root directory  
+**EllProxy:** Organized in `scripts/` with dev-tools isolated
+
+---
+
+### 📦 **Build System Enhancements**
+
+#### Updated `.gitignore`:
+```
+# NEW: AI agent metadata (ignored)
+.agent/
+.claude/
+.gemini/
+.antigravity/
+
+# UPDATED: Trae-Proxy certificates path
+services/trae-proxy/ca/
+
+# NEW: Dev tools isolation
+scripts/dev-tools/
+```
+
+#### Updated Build Paths:
+- `create-app-bundle.sh`: `TRAE_PROXY_SRC=services/trae-proxy`
+- `ModelSyncService.swift`: Development fallback → `scripts/sync_thinking_support.sh`
+
+---
+
+### 🔐 **Security Enhancements**
+
+#### Automated Audits (NEW):
+`clean_and_prepare.sh` includes:
+```bash
+# Audit config.yaml for sensitive keys
+if grep -q "sk-" src/Sources/App/Config/config.yaml; then
+  echo "❌ Found OpenAI API key in config.yaml!"
+  exit 1
+fi
+```
+
+#### `.gitignore` Improvements:
+- AI agent metadata folders excluded
+- Development tools not committed
+- Trae-Proxy CA certificates protected
 
 ---
 
 ## [1.0.0-beta] - TBD
 
-Initial beta release of **EllProxy**.
+### Initial Beta Release
 
-### Inherited from VibeProxy
-- Native macOS menu bar application
-- CLIProxyAPIPlus integration (v6.6.63-0)
-- Multi-provider OAuth support (Claude, Codex, Gemini, Qwen, Antigravity, GitHub Copilot)
-- Extended thinking support for Claude models
-- Real-time model synchronization
-- Multi-account management with auto-failover
+**Base:** VibeProxy v1.8.23  
+**Binary:** CLIProxyAPIPlus v6.6.63-0
 
-### Requirements
+### Inherited Features from VibeProxy v1.8.23:
+- ✅ Native macOS menu bar application
+- ✅ Multi-provider OAuth (Claude, Codex, Gemini, Qwen, Antigravity, GitHub Copilot)
+- ✅ Extended thinking support for Claude models
+- ✅ Multi-account management with auto-failover
+- ✅ Real-time status monitoring
+- ✅ Launch at login
+
+### EllProxy Exclusive Features:
+- ✅ Modular architecture (50+ files, 12 modules)
+- ✅ Model Management System (discovery, sync, search, fallback)
+- ✅ Enhanced ThinkingProxy (9 modular files with caching)
+- ✅ Automated release workflows (unsigned builds)
+- ✅ Provider names in notifications
+- ✅ Trae-Proxy service integration
+- ✅ Consolidated scripts directory
+- ✅ Security audits in build process
+
+### Known Limitations:
+- ⚠️ **Ad-hoc signature only** - Users must right-click → Open on first launch
+- ⚠️ **Sparkle auto-update disabled** - Requires manual download for updates
+- ⚠️ **No notarization** - macOS Gatekeeper warnings expected
+
+### Requirements:
 - macOS 14.0 (Sonoma) or later
 - Apple Silicon (M1/M2/M3/M4)
 
@@ -80,7 +298,12 @@ Initial beta release of **EllProxy**.
 
 ## Future Releases
 
-Planned features and improvements will be documented here.
+Planned improvements:
+- [ ] Apple Developer signing (when account available)
+- [ ] Sparkle auto-update re-enablement
+- [ ] Additional model providers
+- [ ] Enhanced QuickSetup handlers
+- [ ] Performance optimizations
 
 ---
 
