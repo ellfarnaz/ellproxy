@@ -54,7 +54,7 @@ By leveraging this app, you can transform common AI subscriptions (Claude, Gemin
 
 ### 3. 🔄 Universal API Gateway
 *   **OpenAI Compatible**: Provides a standardized `/v1/chat/completions` endpoint compatible with 99% of AI tools (VS Code extensions, terminal agents).
-*   **Anthropic Compatible**: Fully supports the new `thinking` capability in **Claude Code CLI**, enabling extended reasoning models like `claude-3-7-sonnet-thinking`.
+*   **Anthropic Compatible**: Fully supports the new `thinking` capability in **Claude Code CLI**, enabling extended reasoning models like `claude-4-5-sonnet-thinking`.
 *   **Coding Agent Ready**: Dedicated support for **Factory Droids** and **Amp CLI**, transforming them into infinite-context coding machines.
 
 ### 4. 🔀 Intelligent Model Routing
