@@ -1,209 +1,170 @@
-<p align="center">
-  <img src="header.png" alt="EllProxy Header" width="100%">
-</p>
+# EllProxy 🚀
+> Ultra-Performance AI Dispatch Gateway for macOS (v1.0.0-beta)
 
-<p align="center">
-  <b>Your Personal High-Performance AI Dispatch Gateway</b>
-  <br>
-  Seamlessly proxy Gemini & Claude. OpenAI-Compatible. Privacy First.
-  <br><br>
-  <a href="#-key-features">Features</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#usage">Usage</a> •
-  <a href="USER_GUIDE.md">User Guide</a> •
-  <a href="CONTRIBUTING.md">Contributing</a>
-</p>
+<div align="center">
+  <img src="header.png" alt="EllProxy Logo" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+
+  <h3>Your Personal High-Performance AI Dispatch Gateway</h3>
+  <p>Seamlessly proxy Gemini & Claude. OpenAI-Compatible. Privacy First.</p>
+  
+  <p>
+    <a href="https://github.com/ellfarnaz/ellproxy/releases">
+      <img src="https://img.shields.io/badge/Version-v1.0.0--beta-blue?style=flat-square" alt="Version">
+    </a>
+    <img src="https://img.shields.io/badge/Platform-macOS_Silicon-orange?style=flat-square" alt="Platform">
+    <img src="https://img.shields.io/badge/Language-Swift-F05138?style=flat-square" alt="Swift">
+    <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square" alt="License">
+  </p>
+
+  <p>
+    <a href="#-features">Features</a> • 
+    <a href="#-gui-overview">GUI Overview</a> • 
+    <a href="#-architecture">Architecture</a> • 
+    <a href="#-installation">Installation</a> • 
+    <a href="#-integration">Integration</a>
+  </p>
+
+  <p>
+    <a href="USER_GUIDE.md">User Guide</a> | 
+    <a href="CONTRIBUTING.md">Contributing</a> |
+    <a href="CHANGELOG.md">Changelog</a>
+  </p>
+</div>
+
+---
+
+**EllProxy** is a next-generation native macOS menu bar application designed for developers and AI enthusiasts. It perfectly combines multi-account management, protocol conversion, and smart request scheduling to provide you with a stable, high-speed, and low-cost **Local AI Relay Station**.
+
+By leveraging this app, you can transform common AI subscriptions (Claude, Gemini, etc.) into standardized API interfaces, enabling you to use powerful tools like **Factory Droids**, **AmpCode**, and **Trae** without purchasing separate API credits.
 
 > [!NOTE]
-> **Forked from [VibeProxy](https://github.com/automazeio/vibeproxy) v1.8.23** — Enhanced with modular architecture and automated workflows.
+> **Forked from [VibeProxy](https://github.com/automazeio/vibeproxy) v1.8.23** — Enhanced with modular architecture, advanced model management, and automated release workflows.
 
----
+## 🌟 Detailed Feature Matrix
 
-**Stop paying twice for AI.** EllProxy is a next-generation native macOS menu bar app that lets you use your existing Claude Code, ChatGPT, **Gemini**, **Qwen**, and **Antigravity** subscriptions with powerful AI coding tools like **[Factory Droids](https://app.factory.ai/r/FM8BJHFQ)** – no separate API keys required.
+### 1. 🎛️ Smart Menu Bar Dashboard
+*   **Global Status Monitoring**: Instant insight into server health, active port, and connection status directly from your menu bar.
+*   **One-Click Control**: Toggle "Smart Routing" and "Thinking Mode" instantly without digging through menus.
+*   **Non-intrusive Design**: Runs silently in the background with a minimal memory footprint, optimized for Apple Silicon (M1-M4).
 
-Built on [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus), it handles OAuth authentication, token management, and API routing automatically. One click to authenticate, zero friction to code.
+### 2. 🔐 Seamless Provider Integration
+*   **Unified Auth System**: Supports **Google (Gemini)**, **Anthropic (Claude)**, **OpenAI (ChatGPT)**, **Qwen**, and **Antigravity** accounts.
+*   **Multi-Account Round-Robin**: Automatically rotates between multiple accounts for the same provider to maximize rate limits.
+*   **Secure Storage**: All credentials are encrypted and stored safely in the macOS Keychain.
 
+### 3. 🔄 Universal API Gateway
+*   **OpenAI Compatible**: Provides a standardized `/v1/chat/completions` endpoint compatible with 99% of AI tools (VS Code extensions, terminal agents).
+*   **Anthropic Compatible**: Fully supports the new `thinking` capability in **Claude Code CLI**, enabling extended reasoning models like `claude-3-7-sonnet-thinking`.
+*   **Coding Agent Ready**: Dedicated support for **Factory Droids** and **Amp CLI**, transforming them into infinite-context coding machines.
 
+### 4. 🔀 Intelligent Model Routing
+*   **Fast Track vs Thinking Track**: Automatically routes standard requests to fast models (e.g., Gemini Flash) and reasoning requests to powerful models (e.g., Claude Opus/Sonnet Thinking).
+*   **Auto-Failover**: Smartly detects failures and redirects requests to your configured backup models, ensuring your coding flow never stops.
+*   **Model Sync**: One-click discovery of all available models from your connected providers.
 
-> [!TIP]
-> 📣 **Latest models supported:**<br>Gemini 3 Pro Support (via Antigravity), GPT-5.1 / GPT-5.1 Codex, Claude Sonnet 4.5 / Opus 4.5 with extended thinking, and GitHub Copilot! 🚀 
-> 
-> **Setup Guides:**
-> - [Factory CLI Setup →](FACTORY_SETUP.md) - Use Factory Droids with your AI subscriptions
-> - [Amp CLI Setup →](AMPCODE_SETUP.md) - Use Amp CLI with fallback to your subscriptions
+## 🖥️ GUI Overview
 
----
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="docs/screenshots/settings_v2.png" width="400px">
+        <br><b>Smart Model Routing</b><br>Configure default and fallback models with precision.
+      </td>
+      <td align="center">
+        <img src="docs/screenshots/view_1.png" width="400px">
+        <br><b>Model Management</b><br>Sync and manage discovered models effortlessly.
+      </td>
+    </tr>
+     <tr>
+      <td align="center">
+        <img src="docs/screenshots/view_2.png" width="400px">
+        <br><b>Quick Setup</b><br>Auto-configure your favorite tools in seconds.
+      </td>
+    </tr>
+  </table>
+</div>
 
-## ✨ Key Features
+## 🏗️ Architecture
 
-### 🚀 **Supercharged AI Coding**
-- **Unified AI Access** - Use Gemini, Claude, OpenAI, Qwen, and DeepSeek, all from one place.
-- **Subscription Freedom** - Bring your own keys or subscriptions. stop overpaying for multiple limited tiers.
-- **Privacy First** - Your data stays yours. Runs locally on your machine with direct connections to providers.
-- **Coding Tool Integration** - Seamlessly works with major coding agents like Factory Droids, AmpCode, and more.
-
-### 🧠 **Smart Model Management**
-- **One-Click Sync** - Automatically discover and add new models from your providers instantly.
-- **Auto-Failover** - Never get stuck. If a model is down, EllProxy automatically switches to your backup model.
-- **Smart Routing** - Set your preferred default models for different tasks (e.g., Gemini for speed, Claude for complex logic).
-- **Extended "Thinking"** - Unlock extended reasoning capabilities for models like Claude Sonnet 4.5 and DeepSeek.
-
-### 🛠️ **Effortless Control**
-- **Menu Bar Widget** - Control everything right from your macOS menu bar. Zero clutter.
-- **Multi-Account Manager** - Switch between multiple provider accounts effortlessly.
-- **Real-Time Status** - See connection health and active model usage at a glance.
-- **Auto-Updates** - Always stay on the cutting edge with automatic background updates.
-
-### ⚡ **Designed for Speed**
-- **Native Performance** - Built specifically for macOS Silicon (M1/M2/M3/M4) for maximum efficiency.
-- **Instant Auth** - One-click OAuth login for all your providers. No complex config files.
-- **Low Latency** - Direct proxying ensures your coding assistant feels snappy and responsive.
-
----
-
-## Installation
-
-**⚠️ Requirements:** macOS 14.0+ on **Apple Silicon only** (M1/M2/M3/M4). Intel Macs are not supported.
-
-### Download Pre-built Release
-
-1. Visit [Releases](https://github.com/ellfarnaz/ellproxy/releases)
-2. Download `EllProxy.zip` or `EllProxy.dmg`
-3. Extract/mount and drag to `/Applications`
-4. **First launch:** Right-click EllProxy.app → Open (bypass Gatekeeper for unsigned apps)
-
-> [!WARNING]
-> EllProxy releases are **unsigned** (no Apple Developer account). macOS will show a security warning on first launch.
-> 
-> **To open:** Right-click → Open → Click "Open" in the dialog. Only needed once.
-
-### Build from Source
-
-See [**INSTALLATION.md**](INSTALLATION.md) for detailed build instructions.
-
----
-
-## Usage
-
-### First Launch
-
-1. Launch EllProxy - menu bar icon appears
-2. Click icon → "Open Settings"
-3. Server starts automatically
-4. Click "Connect" for your providers to authenticate
-
-### Model Management
-
-1. Click "Models" tab in Settings
-2. Click "Sync Models" to discover available models
-3. Set default and fallback models per provider
-4. Search models with the search button
-
-### Authentication
-
-When you click "Connect":
-1. Browser opens with OAuth page
-2. Complete authentication
-3. EllProxy auto-detects credentials
-4. Status updates to "Connected"
-
----
-
-## Development
-
-### Project Structure (EllProxy)
-
-```
-EllProxy/
-├── src/Sources/
-│   ├── App/                    # Application entry and delegates
-│   │   ├── AppDelegate.swift   # Menu bar & window lifecycle
-│   │   ├── main.swift          # Entry point
-│   │   └── Config/             # App configuration
-│   ├── Services/               # Core business logic
-│   │   ├── ModelRouter.swift   # Model routing logic
-│   │   ├── ModelSyncService.swift  # Model discovery & sync
-│   │   ├── KeychainManager.swift   # Secure credential storage
-│   │   ├── ServerManager.swift     # Server process control
-│   │   ├── TunnelManager.swift     # Tunnel management
-│   │   └── DiscoveredModelsStore.swift  # Model persistence
-│   ├── Views/                  # SwiftUI interface components
-│   │   ├── ModelsView.swift    # Model management UI
-│   │   ├── SettingsView.swift  # Main settings interface
-│   │   ├── AddModelView.swift  # Manual model addition
-│   │   └── FallbackModelPickerPopover.swift  # Fallback selection
-│   ├── ThinkingProxy/          # Extended thinking support
-│   │   ├── Core/               # Protocols and configuration
-│   │   ├── Processing/         # Thinking parameter processing
-│   │   ├── ThinkingProxy.swift # Main proxy implementation
-│   │   └── [Feature modules]   # Anthropic, DeepSeek, etc.
-│   ├── QuickSetup/             # Tool auto-setup system
-│   │   ├── Core/               # Setup managers
-│   │   ├── Detection/          # Tool detection
-│   │   └── Handlers/           # Per-tool setup handlers
-│   ├── Models/                 # Data models
-│   │   └── AuthStatus.swift    # Authentication state
-│   ├── Config/                 # Configuration management
-│   │   └── AppConfig.swift     # App configuration
-│   ├── ServerManagement/       # Server control
-│   │   ├── AuthCommand.swift   # Auth commands
-│   │   └── RingBuffer.swift    # Log buffering
-│   └── Resources/              # Assets and data
-│       ├── models/             # Provider model definitions
-│       │   ├── claude.json     # Claude models
-│       │   ├── google.json     # Gemini models
-│       │   └── [others]        # Per-provider model data
-│       ├── cli-proxy-api-plus  # Proxy binary
-│       └── [icons & assets]    # Visual resources
-├── services/
-│   └── trae-proxy/             # SSL certificate proxy
-├── scripts/
-│   ├── sync_thinking_support.sh   # Model sync script
-│   ├── update_binary.sh           # Binary auto-update
-│   └── dev-tools/                 # Development scripts (git ignored)
-├── clean_and_prepare.sh        # Release preparation
-└── create-app-bundle.sh        # Bundle creation
+```mermaid
+graph TD
+    Client([User Tools: Factory/Amp/VSCode]) -->|OpenAI/Anthropic Protocol| Gateway[EllProxy Server :8317]
+    Gateway --> Router[Smart Model Router]
+    Router -->|Thinking Request?| ThinkingEngine[Thinking Proxy Engine]
+    Router -->|Standard Request?| FastTrack[Fast Track Engine]
+    
+    ThinkingEngine -->|Inject Thinking Params| ProviderA[Anthropic/Claude]
+    FastTrack -->|Round Robin| ProviderB[Google/Gemini]
+    
+    ProviderA --> ResponseMapper[Response Normalizer]
+    ProviderB --> ResponseMapper
+    ResponseMapper --> Client
 ```
 
-### Architecture Comparison
+## 📥 Installation
 
-| Component | VibeProxy v1.8.23 | EllProxy |
-|-----------|-------------------|----------|
-| **Files** | 10 Swift files (flat) | 50+ Swift files (modular) |
-| **Structure** | Single directory | 12 specialized modules |
-| **Model Management** | Hardcoded | Dynamic discovery & sync |
-| **ThinkingProxy** | Monolithic (33KB) | Modular (8 files) |
-| **Setup System** | Manual | QuickSetup module (7 handlers) |
-| **Services** | None | `services/trae-proxy/` |
-| **Automation** | None | CI/CD + auto-update |
+### Option A: Pre-built Release
+Download from [GitHub Releases](https://github.com/ellfarnaz/ellproxy/releases):
+1. Download `EllProxy.zip` or `EllProxy.dmg`.
+2. Extract and drag to `/Applications`.
+3. **First Launch**: Right-click → Open (to bypass gatekeeper for unsigned app).
+
+### Option B: Build from Source
+```bash
+git clone https://github.com/ellfarnaz/ellproxy.git
+cd ellproxy
+./create-app-bundle.sh
+```
+
+## 🔌 Quick Integration
+
+### Factory Droids
+Add to `~/.factory/config.json`:
+```json
+{
+  "custom_models": [
+    {
+      "model": "ellproxy-default",
+      "base_url": "http://localhost:8317/v1",
+      "api_key": "dummy",
+      "provider": "openai"
+    }
+  ]
+}
+```
+
+### Amp CLI
+Configure Amp to use local proxy:
+```bash
+# Set Amp to use EllProxy
+amp config set url http://localhost:8317
+```
+
+### Python / OpenAI SDK
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8317/v1",
+    api_key="dummy-key"
+)
+
+response = client.chat.completions.create(
+    model="gemini-2.0-flash",
+    messages=[{"role": "user", "content": "Hello via EllProxy!"}]
+)
+print(response.choices[0].message.content)
+```
+
+## 📝 Developer & Community
+
+*   **License**: **MIT**. Open source and free.
+*   **Privacy**: All data runs locally. No data collection.
 
 ---
 
----
-
-## Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started.
-
-## Credits
-
-EllProxy is an enhanced fork of [VibeProxy v1.8.23](https://github.com/automazeio/vibeproxy) by [Automaze, Ltd.](https://automaze.io)
-
-Both EllProxy and VibeProxy are built on top of [CLIProxyAPIPlus](https://github.com/router-for-me/CLIProxyAPIPlus).
-
-Special thanks to:
-- The **VibeProxy** team at Automaze for creating the excellent foundation
-- The **CLIProxyAPIPlus** project for the core proxy functionality
-- The open-source community for continuous improvements
-
----
-
-## License
-
-MIT License - see LICENSE file for details
-
-Original VibeProxy: © 2025 [Automaze, Ltd.](https://automaze.io)
-
----
-
-*Enhanced fork of VibeProxy - https://github.com/automazeio/vibeproxy*
+<div align="center">
+  <p>If you find this tool helpful, please give it a ⭐️ on GitHub!</p>
+  <p>Copyright © 2025 EllProxy Team.</p>
+</div>
