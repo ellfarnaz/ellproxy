@@ -5,6 +5,13 @@
 </div>
 
 > [!NOTE]
+
+## [1.0.1] - 2025-12-30
+
+### Updated
+- **CLIProxyAPI 6.6.68-0** - Latest upstream release (#1)
+  - Various upstream improvements and stability enhancements
+
 > **Forked from [VibeProxy v1.8.23](https://github.com/automazeio/vibeproxy)**
 > 
 > This CHANGELOG documents **EllProxy-specific changes and enhancements** only.
