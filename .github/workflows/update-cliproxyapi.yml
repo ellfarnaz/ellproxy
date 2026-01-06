@@ -214,7 +214,7 @@ jobs:
           echo "🔗 URL: $PR_URL"
           
           # Add a comment mentioning you for notification
-          gh pr comment "$PR_NUMBER" --body "@ranaroussi New CLIProxyAPIPlus v${VERSION} available for review!
+          gh pr comment "$PR_NUMBER" --body "New CLIProxyAPIPlus v${VERSION} available for review!
           
           **Changes:** Updated bundled binary to latest upstream release.
           
