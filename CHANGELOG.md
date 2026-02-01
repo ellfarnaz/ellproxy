@@ -6,6 +6,13 @@
 
 > [!NOTE]
 
+## [1.0.34] - 2026-02-01
+
+### Updated
+- **CLIProxyAPI 6.7.40-0** - Latest upstream release (#35)
+  - Various upstream improvements and stability enhancements
+
+
 ## [1.0.33] - 2026-01-31
 
 ### Updated
